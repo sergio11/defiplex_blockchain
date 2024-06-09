@@ -1,6 +1,6 @@
 // contracts/StakingFarm.sol
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -64,7 +64,7 @@ contract StakingFarm is Ownable {
         stakingToken.transfer(msg.sender, _amount);
     }
 
-    function getReward() external {
+    function claimReward() external {
         updateReward(msg.sender);
         uint256 reward = rewards[msg.sender];
         rewards[msg.sender] = 0;
