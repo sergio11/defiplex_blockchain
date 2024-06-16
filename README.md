@@ -1,6 +1,16 @@
 # 🌐 DeFiPlex - Decentralized Finance Platform on Polygon
 
-DeFiPlex is a *decentralized finance (DeFi) platform* designed to serve as a comprehensive hub for a wide range of decentralized financial activities. Built on the Polygon blockchain, DeFiPlex offers staking, lending, borrowing, and governance functionalities, all powered by smart contracts to ensure transparency, security, and efficiency.
+DeFiPlex is a **decentralized finance (DeFi) platform** designed to serve as a comprehensive hub for a wide range of decentralized financial activities. Built on the Polygon blockchain, DeFiPlex offers staking, lending, borrowing, and governance functionalities, all powered by smart contracts to ensure transparency, security, and efficiency.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Solidity-2E8B57?style=for-the-badge&logo=solidity&logoColor=white" />
+  <img src="https://img.shields.io/badge/Alchemy-039BE5?style=for-the-badge&logo=alchemy&logoColor=white" />
+  <img src="https://img.shields.io/badge/Remix IDE-3e5f8a?style=for-the-badge&logo=remix&logoColor=white" />
+  <img src="https://img.shields.io/badge/Hardhat-E6522C?style=for-the-badge&logo=hardhat&logoColor=white" />
+  <img src="https://img.shields.io/badge/Ethereum-3C3C3D?style=for-the-badge&logo=Ethereum&logoColor=white" />
+  <img src="https://img.shields.io/badge/Smart%20Contracts-8B0000?style=for-the-badge&logo=Ethereum&logoColor=white" />
+</p>
+
 
 ## Features
 * **🔐 Staking**: Users can stake their tokens in the DeFiPlex platform to earn rewards. Staking helps secure the network and allows participants to earn a passive income based on the amount and duration of their stake.
