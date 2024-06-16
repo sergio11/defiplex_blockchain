@@ -1,4 +1,4 @@
-#🌐 DeFiPlex - Decentralized Finance Platform on Polygon
+# 🌐 DeFiPlex - Decentralized Finance Platform on Polygon
 
 DeFiPlex is a *decentralized finance (DeFi) platform* designed to serve as a comprehensive hub for a wide range of decentralized financial activities. Built on the Polygon blockchain, DeFiPlex offers staking, lending, borrowing, and governance functionalities, all powered by smart contracts to ensure transparency, security, and efficiency.
 
