@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract FlexTokenERC20Contract is ERC20Burnable, Ownable {
     uint256 private constant INITIAL_SUPPLY = 1000000 * 10 ** 18; // 1,000,000 tokens with 18 decimals
 
-    constructor() ERC20("Flex Token", "FLEX") {
+    constructor(address initialOwner) ERC20("Flex Token", "FLEX") Ownable(initialOwner) {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 

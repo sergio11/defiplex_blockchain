@@ -32,18 +32,12 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
     // Mapping to track each user's accumulated rewards
     mapping(address => uint256) private _userRewards;
 
-    // Events
-    event Staked(address indexed user, uint256 amount);
-    event Withdrawn(address indexed user, uint256 amount);
-    event RewardClaimed(address indexed user, uint256 reward);
-    event RewardRateSet(uint256 rewardRate);
-
     /**
      * @dev Constructor function
      * @param stakingTokenAddress Address of the ERC20 token to be staked
      * @param rewardTokenAddress Address of the ERC20 token used as rewards
      */
-    constructor(address stakingTokenAddress, address rewardTokenAddress) {
+    constructor(address initialOwner, address stakingTokenAddress, address rewardTokenAddress) Ownable(initialOwner) {
         _stakingToken = IERC20(stakingTokenAddress);
         _rewardToken = IERC20(rewardTokenAddress);
     }
