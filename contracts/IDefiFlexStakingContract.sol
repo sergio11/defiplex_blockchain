@@ -35,15 +35,15 @@ interface IDefiFlexStakingContract {
 
     /**
      * @dev Stake tokens to participate in staking.
-     * @param _amount The amount of tokens to stake.
+     * @param amount The amount of tokens to stake.
      */
-    function stake(uint256 _amount) external;
+    function stake(uint256 amount) external;
 
     /**
      * @dev Withdraw tokens from staking.
-     * @param _amount The amount of tokens to withdraw.
+     * @param amount The amount of tokens to withdraw.
      */
-    function withdraw(uint256 _amount) external;
+    function withdraw(uint256 amount) external;
 
     /**
      * @dev Claim rewards earned from staking.
@@ -52,9 +52,9 @@ interface IDefiFlexStakingContract {
 
     /**
      * @dev Set the reward rate.
-     * @param _rewardRate The new reward rate.
+     * @param rewardRate The new reward rate.
      */
-    function setRewardRate(uint256 _rewardRate) external;
+    function setRewardRate(uint256 rewardRate) external;
 
     /**
      * @dev Get the address of the staking token.
@@ -70,16 +70,6 @@ interface IDefiFlexStakingContract {
      * @dev Get the current reward rate.
      */
     function rewardRate() external view returns (uint256);
-
-    /**
-     * @dev Get the last update time.
-     */
-    function lastUpdateTime() external view returns (uint256);
-
-    /**
-     * @dev Get the current reward per token stored.
-     */
-    function rewardPerTokenStored() external view returns (uint256);
 
     /**
      * @dev Get the amount of rewards already paid to a user.
@@ -102,5 +92,5 @@ interface IDefiFlexStakingContract {
      * @dev Get the total amount of rewards earned by a user.
      * @param account The address of the user.
      */
-    function earned(address account) external view returns (uint256);
+    function getEarnedRewards(address account) external view returns (uint256);
 }
