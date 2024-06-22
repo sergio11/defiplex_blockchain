@@ -34,63 +34,72 @@ interface IDefiFlexStakingContract {
     event RewardRateSet(uint256 newRate);
 
     /**
+     * @dev Add a new staking token.
+     * @param stakingTokenAddress The address of the ERC20 token to be staked.
+     * @param rewardRate Reward rate for the token (tokens per week).
+     */
+    function addStakingToken(address stakingTokenAddress, uint256 rewardRate) external;
+
+    /**
      * @dev Stake tokens to participate in staking.
+     * @param stakingTokenAddress The address of the ERC20 token to be staked.
      * @param amount The amount of tokens to stake.
      */
-    function stake(uint256 amount) external;
+    function stake(address stakingTokenAddress, uint256 amount) external;
 
     /**
      * @dev Withdraw tokens from staking.
+     * @param stakingTokenAddress The address of the ERC20 token to be withdrawn.
      * @param amount The amount of tokens to withdraw.
      */
-    function withdraw(uint256 amount) external;
+    function withdraw(address stakingTokenAddress, uint256 amount) external;
 
     /**
      * @dev Claim rewards earned from staking.
+     * @param stakingTokenAddress The address of the ERC20 token for which rewards are claimed.
      */
-    function claimReward() external;
+    function claimReward(address stakingTokenAddress) external;
 
     /**
      * @dev Set the reward rate.
+     * @param stakingTokenAddress The address of the ERC20 token.
      * @param rewardRate The new reward rate.
      */
-    function setRewardRate(uint256 rewardRate) external;
-
-    /**
-     * @dev Get the address of the staking token.
-     */
-    function stakingToken() external view returns (address);
+    function setRewardRate(address stakingTokenAddress, uint256 rewardRate) external;
 
     /**
      * @dev Get the address of the reward token.
+     * @return The address of the reward token.
      */
     function rewardToken() external view returns (address);
 
     /**
-     * @dev Get the current reward rate.
+     * @dev Get the current reward rate for a specific staking token.
+     * @param stakingTokenAddress The address of the ERC20 token.
+     * @return The current reward rate (tokens per week).
      */
-    function rewardRate() external view returns (uint256);
+    function rewardRate(address stakingTokenAddress) external view returns (uint256);
 
     /**
-     * @dev Get the amount of rewards already paid to a user.
-     * @param account The address of the user.
+     * @dev Get the total amount of staked tokens for a specific staking token.
+     * @param stakingTokenAddress The address of the ERC20 token.
+     * @return The total amount of staked tokens (in wei).
      */
-    function userRewardPerTokenPaid(address account) external view returns (uint256);
-
-    /**
-     * @dev Get the total amount of staked tokens.
-     */
-    function totalSupply() external view returns (uint256);
+    function totalSupply(address stakingTokenAddress) external view returns (uint256);
 
     /**
      * @dev Get the balance of staked tokens for a user.
+     * @param stakingTokenAddress The address of the ERC20 token.
      * @param account The address of the user.
+     * @return The balance of staked tokens for the user (in wei).
      */
-    function balanceOf(address account) external view returns (uint256);
+    function balanceOf(address stakingTokenAddress, address account) external view returns (uint256);
 
     /**
-     * @dev Get the total amount of rewards earned by a user.
+     * @dev Get the total amount of rewards earned by a user for a specific staking token.
+     * @param stakingTokenAddress The address of the ERC20 token.
      * @param account The address of the user.
+     * @return The total amount of rewards earned by the user (in wei).
      */
-    function getEarnedRewards(address account) external view returns (uint256);
+    function getEarnedRewards(address stakingTokenAddress, address account) external view returns (uint256);
 }
