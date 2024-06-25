@@ -6,6 +6,9 @@ pragma solidity ^0.8.9;
  * @dev This interface defines the functions and events of the DefiFlex Staking contract.
  */
 interface IDefiFlexStakingContract {
+
+    event StakingTokenAdded(address stakingTokenAddress, uint256 rewardRate);
+
     /**
      * @dev Emitted when a user stakes tokens.
      * @param user The address of the user who staked tokens.

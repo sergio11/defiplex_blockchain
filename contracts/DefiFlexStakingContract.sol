@@ -25,6 +25,9 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
     // Reward token instance 
     IERC20 private _rewardToken;
 
+    // Maximum reward rate allowed (e.g., 100 tokens per week)
+    uint256 private constant MAX_REWARD_RATE = 100;
+
     // Mapping from token address to staking info
     mapping(address => StakingInfo) private _stakingInfos;
 
@@ -52,11 +55,22 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
      * @param _rewardRate Reward rate for the token (tokens per week)
      */
     function addStakingToken(address _stakingTokenAddress, uint256 _rewardRate) external override onlyOwner {
+        require(_rewardRate > 0, "Cannot add staking token with 0 reward rate");
+        require(_rewardRate <= MAX_REWARD_RATE, "Reward rate exceeds maximum allowed");
+        require(_stakingTokenAddress != address(0), "Invalid token address");
+        // Check if the address is a contract (basic verification)
+        uint256 size;
+        assembly {
+            size := extcodesize(_stakingTokenAddress)
+        }
+        require(size > 0, "Address is not a contract");
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         require(address(info.stakingToken) == address(0), "Staking token already added");
 
         info.stakingToken = IERC20(_stakingTokenAddress);
         info.rewardRate = _rewardRate;
+
+        emit StakingTokenAdded(_stakingTokenAddress, _rewardRate);
     }
 
     /**

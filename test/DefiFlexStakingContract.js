@@ -34,15 +34,53 @@ describe("DefiFlexStakingContract", function () {
   });
 
   describe("Adding Staking Tokens", function () {
+ 
     it("Should allow the owner to add staking tokens", async function () {
       await stakingContract.addStakingToken(stakingToken1, 1);
       const rewardRate = await stakingContract.rewardRate(stakingToken1);
       expect(rewardRate).to.equal(1);
     });
-
+  
     it("Should not allow non-owners to add staking tokens", async function () {
       await expect(
         stakingContract.connect(addr1).addStakingToken(stakingToken1, 1)
+      ).to.be.reverted;
+    });
+  
+    it("Should not allow adding the same staking token more than once", async function () {
+      await stakingContract.addStakingToken(stakingToken1, 1);
+      await expect(
+        stakingContract.addStakingToken(stakingToken1, 1)
+      ).to.be.reverted;
+    });
+  
+    it("Should revert when adding a staking token with a reward rate of zero", async function () {
+      await expect(
+        stakingContract.addStakingToken(stakingToken1, 0)
+      ).to.be.reverted;
+    });
+  
+    it("Should correctly store staking token info after adding", async function () {
+      await stakingContract.addStakingToken(stakingToken1, 1);
+      const stakingInfo = await stakingContract.totalSupply(stakingToken1);
+      expect(stakingInfo).to.equal(0); // Initially, no tokens are staked
+    });
+  
+    it("Should emit StakingTokenAdded event when a new staking token is added", async function () {
+      await expect(stakingContract.addStakingToken(stakingToken1, 1))
+        .to.emit(stakingContract, "StakingTokenAdded")
+        .withArgs(stakingToken1, 1);
+    });
+  
+    it("Should revert if trying to add a staking token with a non-contract address", async function () {
+      await expect(
+        stakingContract.addStakingToken(addr1.address, 1)
+      ).to.be.reverted;
+    });
+  
+    it("Should not allow adding staking tokens with extremely high reward rates", async function () {
+      await expect(
+        stakingContract.addStakingToken(stakingToken1, 1000000 * 18)
       ).to.be.reverted;
     });
   });
