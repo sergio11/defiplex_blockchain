@@ -17,7 +17,6 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPool {
         address borrower;            // Address of the borrower
         bool collateralized;         // Flag to track if collateral has been collected
         bool repaid;                 // Flag to track if the loan has been repaid
-        bool approved;               // Flag to track if the loan has been approved
         uint256 penaltyRate;         // Penalty rate for late repayment per week
         uint256 penaltyStartTime;    // Start time to calculate penalties
     }
@@ -55,7 +54,6 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPool {
             borrower: msg.sender,
             collateralized: false,
             repaid: false,
-            approved: false,
             penaltyRate: 1,
             penaltyStartTime: 0
         });
@@ -68,7 +66,6 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPool {
 
     function approveLoan(uint256 loanIndex) external override onlyOwner {
         Loan storage loan = loans[loanIndex];
-        require(!loan.approved, "Loan already approved");
         require(!loan.collateralized, "Collateral already collected");
         require(IERC20(loan.borrowToken).balanceOf(_defiFlexStakingContract) >= loan.borrowAmount, "Insufficient borrow token amount in lending pool");
         require(IERC20(loan.collateralToken).balanceOf(loan.borrower) >= loan.collateralAmount, "Borrower does not have enough collateral tokens");
@@ -76,7 +73,6 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPool {
         IERC20(loan.collateralToken).transferFrom(loan.borrower, address(this), loan.collateralAmount);
         loan.collateralized = true;
         IERC20(loan.borrowToken).transferFrom(_defiFlexStakingContract, loan.borrower, loan.borrowAmount);
-        loan.approved = true;
 
         emit CollateralCollected(loanIndex, loan.borrower, loan.collateralToken, loan.collateralAmount);
         emit LoanApproved(loanIndex, loan.borrower, loan.borrowAmount);

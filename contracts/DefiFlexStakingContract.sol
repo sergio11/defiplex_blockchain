@@ -22,7 +22,7 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
         mapping(address => uint256) userRewards;
     }
 
-    // Reward token instance
+    // Reward token instance 
     IERC20 private _rewardToken;
 
     // Mapping from token address to staking info
@@ -48,59 +48,59 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
 
     /**
      * @dev Add a new staking token
-     * @param stakingTokenAddress Address of the ERC20 token to be staked
-     * @param rewardRate Reward rate for the token (tokens per week)
+     * @param _stakingTokenAddress Address of the ERC20 token to be staked
+     * @param _rewardRate Reward rate for the token (tokens per week)
      */
-    function addStakingToken(address stakingTokenAddress, uint256 rewardRate) external onlyOwner {
-        StakingInfo storage info = _stakingInfos[stakingTokenAddress];
+    function addStakingToken(address _stakingTokenAddress, uint256 _rewardRate) external override onlyOwner {
+        StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         require(address(info.stakingToken) == address(0), "Staking token already added");
 
-        info.stakingToken = IERC20(stakingTokenAddress);
-        info.rewardRate = rewardRate;
+        info.stakingToken = IERC20(_stakingTokenAddress);
+        info.rewardRate = _rewardRate;
     }
 
     /**
      * @dev Stake ERC20 tokens into the contract
-     * @param stakingTokenAddress Address of the ERC20 token to be staked
-     * @param amount The amount of tokens to stake
+     * @param _stakingTokenAddress Address of the ERC20 token to be staked
+     * @param _amount The amount of tokens to stake
      */
-    function stake(address stakingTokenAddress, uint256 amount) external override updateReward(stakingTokenAddress, msg.sender) {
-        require(amount > 0, "Cannot stake 0 tokens");
-        StakingInfo storage info = _stakingInfos[stakingTokenAddress];
+    function stake(address _stakingTokenAddress, uint256 _amount) external override updateReward(_stakingTokenAddress, msg.sender) {
+        require(_amount > 0, "Cannot stake 0 tokens");
+        StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
 
-        info.totalSupply += amount;
-        info.userStakedAmount[msg.sender] += amount;
+        info.totalSupply += _amount;
+        info.userStakedAmount[msg.sender] += _amount;
 
         if (info.userLastStakedTime[msg.sender] == 0) {
             info.userLastStakedTime[msg.sender] = block.timestamp;
         }
 
-        info.stakingToken.safeTransferFrom(msg.sender, address(this), amount);
-        emit Staked(msg.sender, amount);
+        info.stakingToken.safeTransferFrom(msg.sender, address(this), _amount);
+        emit Staked(msg.sender, _amount);
     }
 
     /**
      * @dev Withdraw ERC20 tokens from the contract
-     * @param stakingTokenAddress Address of the ERC20 token to be withdrawn
-     * @param amount The amount of tokens to withdraw
+     * @param _stakingTokenAddress Address of the ERC20 token to be withdrawn
+     * @param _amount The amount of tokens to withdraw
      */
-    function withdraw(address stakingTokenAddress, uint256 amount) external override updateReward(stakingTokenAddress, msg.sender) {
-        require(amount > 0, "Cannot withdraw 0 tokens");
-        StakingInfo storage info = _stakingInfos[stakingTokenAddress];
+    function withdraw(address _stakingTokenAddress, uint256 _amount) external override updateReward(_stakingTokenAddress, msg.sender) {
+        require(_amount > 0, "Cannot withdraw 0 tokens");
+        StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
 
-        info.totalSupply -= amount;
-        info.userStakedAmount[msg.sender] -= amount;
+        info.totalSupply -= _amount;
+        info.userStakedAmount[msg.sender] -= _amount;
 
-        info.stakingToken.safeTransfer(msg.sender, amount);
-        emit Withdrawn(msg.sender, amount);
+        info.stakingToken.safeTransfer(msg.sender, _amount);
+        emit Withdrawn(msg.sender, _amount);
     }
 
     /**
      * @dev Claim accumulated rewards
-     * @param stakingTokenAddress Address of the ERC20 token for which rewards are claimed
+     * @param _stakingTokenAddress Address of the ERC20 token for which rewards are claimed
      */
-    function claimReward(address stakingTokenAddress) external override updateReward(stakingTokenAddress, msg.sender) {
-        StakingInfo storage info = _stakingInfos[stakingTokenAddress];
+    function claimReward(address _stakingTokenAddress) external override updateReward(_stakingTokenAddress, msg.sender) {
+        StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         uint256 reward = info.userRewards[msg.sender];
         require(reward > 0, "No reward to claim");
 
@@ -113,15 +113,15 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
 
     /**
      * @dev Set the reward rate for a specific staking token
-     * @param stakingTokenAddress Address of the ERC20 token
-     * @param rewardRate The new reward rate (tokens per week)
+     * @param _stakingTokenAddress Address of the ERC20 token
+     * @param _rewardRate The new reward rate (tokens per week)
      */
-    function setRewardRate(address stakingTokenAddress, uint256 rewardRate) external override onlyOwner {
-        StakingInfo storage info = _stakingInfos[stakingTokenAddress];
+    function setRewardRate(address _stakingTokenAddress, uint256 _rewardRate) external override onlyOwner {
+        StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         require(address(info.stakingToken) != address(0), "Staking token not found");
 
-        info.rewardRate = rewardRate;
-        emit RewardRateSet(rewardRate);
+        info.rewardRate = _rewardRate;
+        emit RewardRateSet(_rewardRate);
     }
 
     /**
@@ -134,42 +134,42 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
 
     /**
      * @dev Get the current reward rate for a specific staking token
-     * @param stakingTokenAddress Address of the ERC20 token
+     * @param _stakingTokenAddress Address of the ERC20 token
      * @return Current reward rate (tokens per week)
      */
-    function rewardRate(address stakingTokenAddress) external view override returns (uint256) {
-        return _stakingInfos[stakingTokenAddress].rewardRate;
+    function rewardRate(address _stakingTokenAddress) external view override returns (uint256) {
+        return _stakingInfos[_stakingTokenAddress].rewardRate;
     }
 
     /**
      * @dev Get the total amount of staked tokens for a specific staking token
-     * @param stakingTokenAddress Address of the ERC20 token
+     * @param _stakingTokenAddress Address of the ERC20 token
      * @return Total amount of staked tokens (in wei)
      */
-    function totalSupply(address stakingTokenAddress) external view override returns (uint256) {
-        return _stakingInfos[stakingTokenAddress].totalSupply;
+    function totalSupply(address _stakingTokenAddress) external view override returns (uint256) {
+        return _stakingInfos[_stakingTokenAddress].totalSupply;
     }
 
     /**
      * @dev Get the balance of staked tokens for a user
-     * @param stakingTokenAddress Address of the ERC20 token
-     * @param account Address of the user
+     * @param _stakingTokenAddress Address of the ERC20 token
+     * @param _account Address of the user
      * @return Balance of staked tokens for the user (in wei)
      */
-    function balanceOf(address stakingTokenAddress, address account) external view override returns (uint256) {
-        return _stakingInfos[stakingTokenAddress].userStakedAmount[account];
+    function balanceOf(address _stakingTokenAddress, address _account) external view override returns (uint256) {
+        return _stakingInfos[_stakingTokenAddress].userStakedAmount[_account];
     }
 
     /**
      * @dev Get the total amount of rewards earned by a user for a specific staking token
-     * @param stakingTokenAddress Address of the ERC20 token
-     * @param account Address of the user
+     * @param _stakingTokenAddress Address of the ERC20 token
+     * @param _account Address of the user
      * @return Total amount of rewards earned by the user (in wei)
      */
-    function getEarnedRewards(address stakingTokenAddress, address account) external view override returns (uint256) {
-        StakingInfo storage info = _stakingInfos[stakingTokenAddress];
-        uint256 timeElapsed = block.timestamp - info.userLastStakedTime[account];
-        return (info.userStakedAmount[account] * info.rewardRate * timeElapsed) / (1 weeks);
+    function getEarnedRewards(address _stakingTokenAddress, address _account) external view override returns (uint256) {
+        StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
+        uint256 timeElapsed = block.timestamp - info.userLastStakedTime[_account];
+        return (info.userStakedAmount[_account] * info.rewardRate * timeElapsed) / (1 weeks);
     }
 
     /**
