@@ -88,18 +88,46 @@ describe("DefiFlexStakingContract", function () {
   describe("Staking Tokens", function () {
     beforeEach(async function () {
       await stakingContract.addStakingToken(stakingToken1, 10);
-      await stakingToken1.connect(owner).mint(addr1, 100);
+      await stakingToken1.connect(owner).mint(addr1.address, 100);
       await stakingToken1.connect(addr1).approve(stakingContract, 100);
     });
 
     it("Should allow users to stake tokens", async function () {
       await stakingContract.connect(addr1).stake(stakingToken1, 50);
-      const balance = await stakingContract.balanceOf(stakingToken1, addr1);
+      const balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
       expect(balance).to.equal(50);
     });
 
     it("Should not allow staking zero tokens", async function () {
       await expect(stakingContract.connect(addr1).stake(stakingToken1, 0)).to.be.reverted;
+    });
+
+    it("Should allow multiple users to stake tokens", async function () {
+      await stakingToken1.connect(owner).mint(addr2.address, 200);
+      await stakingToken1.connect(addr2).approve(stakingContract, 200);
+
+      await stakingContract.connect(addr1).stake(stakingToken1, 30);
+      await stakingContract.connect(addr2).stake(stakingToken1, 70);
+
+      const balanceAddr1 = await stakingContract.balanceOf(stakingToken1, addr1.address);
+      const balanceAddr2 = await stakingContract.balanceOf(stakingToken1, addr2.address);
+
+      expect(balanceAddr1).to.equal(30);
+      expect(balanceAddr2).to.equal(70);
+    });
+
+    it("Should not allow staking more tokens than available", async function () {
+      await expect(stakingContract.connect(addr1).stake(stakingToken1, 150)).to.be.reverted;
+    });
+
+    it("Should allow stake and withdraw tokens", async function () {
+      await stakingContract.connect(addr1).stake(stakingToken1, 50);
+      let balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
+      expect(balance).to.equal(50);
+
+      await stakingContract.connect(addr1).withdraw(stakingToken1, 30);
+      balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
+      expect(balance).to.equal(20);
     });
   });
 
