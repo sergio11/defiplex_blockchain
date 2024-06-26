@@ -105,4 +105,12 @@ interface IDefiFlexStakingContract {
      * @return The total amount of rewards earned by the user (in wei).
      */
     function getEarnedRewards(address _stakingTokenAddress, address _account) external view returns (uint256);
+
+    /**
+     * @dev Get the total rewards accumulated by a user for a specific staking token
+     * @param _stakingTokenAddress Address of the ERC20 token
+     * @param _account Address of the user
+     * @return Total rewards accumulated by the user (in wei)
+     */
+    function getTotalRewards(address _stakingTokenAddress, address _account) external view returns (uint256);
 }

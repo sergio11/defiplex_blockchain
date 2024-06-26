@@ -137,18 +137,64 @@ describe("DefiFlexStakingContract", function () {
       await stakingToken1.connect(owner).mint(addr1.address, 100);
       await stakingToken1.connect(addr1).approve(stakingContract, 100);
       await stakingContract.connect(addr1).stake(stakingToken1, 50);
+      await rewardToken.connect(owner).mint(stakingContract, 1000);
     });
 
-    it("Should allow users to withdraw staked tokens", async function () {
-      await stakingContract.connect(addr1).withdraw(stakingToken1, 20);
+    it("Should allow users to withdraw all staked tokens", async function () {
+      await stakingContract.connect(addr1).withdraw(stakingToken1, 50);
       const balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
-      expect(balance).to.equal(30);
+      expect(balance).to.equal(0);
     });
 
-    it("Should not allow withdrawing zero tokens", async function () {
-      await expect(stakingContract.connect(addr1).withdraw(stakingToken1, 0)).to.be.reverted;
+    it("Should not allow withdrawing more tokens than staked", async function () {
+      await expect(stakingContract.connect(addr1).withdraw(stakingToken1, 60)).to.be.reverted;
+    });
+
+    it("Should allow withdrawing tokens and update rewards", async function () {
+      // Fast-forward time by 1 week
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
+      await ethers.provider.send("evm_mine", []);
+
+      const initialRewardBalance = await rewardToken.balanceOf(addr1.address);
+      await stakingContract.connect(addr1).withdraw(stakingToken1, 20);
+      const earnedRewards = await stakingContract.connect(addr1).getTotalRewards(stakingToken1, addr1.address);
+      await stakingContract.connect(addr1).claimReward(stakingToken1)
+      const balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
+      const finalRewardBalance = await rewardToken.balanceOf(addr1.address);
+      
+      expect(balance).to.equal(30);
+      expect(earnedRewards).to.equal(50);
+      expect(finalRewardBalance).to.equal(50);
+      expect(finalRewardBalance).to.be.gt(initialRewardBalance);
+    });
+
+    it("Should allow withdrawing tokens and update rewards 2", async function () {
+      // Fast-forward time by 1 week
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
+      await ethers.provider.send("evm_mine", []);
+
+      const initialRewardBalance = await rewardToken.balanceOf(addr1.address);
+      await stakingContract.connect(addr1).withdraw(stakingToken1, 20);
+      const earnedRewardsAfterWithDraw = await stakingContract.connect(addr1).getTotalRewards(stakingToken1, addr1.address);
+      
+      // Fast-forward time by 1 week
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
+      await ethers.provider.send("evm_mine", []);
+
+      const earnedRewardsBeforeClaim = await stakingContract.connect(addr1).getEarnedRewards(stakingToken1, addr1.address);
+
+      await stakingContract.connect(addr1).claimReward(stakingToken1)
+      const balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
+      const finalRewardBalance = await rewardToken.balanceOf(addr1.address);
+      
+      expect(balance).to.equal(30);
+      expect(earnedRewardsAfterWithDraw).to.equal(50);
+      expect(earnedRewardsBeforeClaim).to.equal(30);
+      expect(finalRewardBalance).to.equal(80);
+      expect(finalRewardBalance).to.be.gt(initialRewardBalance);
     });
   });
+
 
   describe("Claiming Rewards", function () {
     beforeEach(async function () {
