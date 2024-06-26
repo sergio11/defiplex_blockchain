@@ -270,6 +270,7 @@ describe("DefiFlexStakingContract", function () {
       await stakingToken1.connect(owner).mint(addr1.address, 100);
       await stakingToken1.connect(addr1).approve(stakingContract, 100);
       await stakingContract.connect(addr1).stake(stakingToken1, 50);
+      await rewardToken.connect(owner).mint(stakingContract, 1000);
     });
 
     it("Should return the correct total supply", async function () {
@@ -289,6 +290,23 @@ describe("DefiFlexStakingContract", function () {
 
       const rewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
       expect(rewards).to.be.gt(0);
+    });
+
+    it("Should return the correct total rewards accumulated", async function () {
+      // Fast-forward time by 1 week
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
+      await ethers.provider.send("evm_mine", []);
+
+      await stakingContract.connect(addr1).claimReward(stakingToken1);
+      const totalRewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      expect(totalRewards).to.equal(0);
+
+      // Fast-forward time by another week
+      await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
+      await ethers.provider.send("evm_mine", []);
+
+      const newTotalRewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      expect(newTotalRewards).to.be.gt(0);
     });
   });
 });
