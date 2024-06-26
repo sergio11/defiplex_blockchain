@@ -5,10 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./DefiFlexGovernanceToken.sol";
 import "./IDefiFlexLendingPoolContract.sol";
 
-/**
- * @title DefiFlexGovernanceContract
- * @dev Contract for governance management allowing token holders to vote on proposals.
- */
 contract DefiFlexGovernanceContract is Ownable {
 
     struct Proposal {
@@ -16,6 +12,11 @@ contract DefiFlexGovernanceContract is Ownable {
         address proposer;
         string title;
         string description;
+        address borrowerAddress;
+        uint256 borrowingAmount;
+        uint256 collateralAmount;
+        uint256 interestRate;
+        uint256 duration;
         uint256 votingStartTime;
         uint256 votingEndTime;
         bool executed;
@@ -24,53 +25,69 @@ contract DefiFlexGovernanceContract is Ownable {
         mapping(address => bool) hasVoted;
     }
 
+    event ProposalCreated(
+        uint256 indexed proposalId,
+        address indexed proposer,
+        string title,
+        string description
+    );
+
+    event Voted(
+        uint256 indexed proposalId,
+        address indexed voter,
+        bool support,
+        uint256 votes
+    );
+
     uint256 public proposalCount;
     mapping(uint256 => Proposal) public proposals;
     DefiFlexGovernanceToken public governanceToken;
-    IDefiFlexLendingPool public lendingPoolContract;
+    uint256 public minimumVotesRequired;
+    uint256 public votingPeriod;
 
-    /**
-     * @dev Constructor that initializes the contract with the addresses of the governance token and lending pool contract.
-     * @param governanceTokenAddress Address of the governance token contract.
-     * @param lendingPoolAddress Address of the lending pool contract.
-     */
-    constructor(address initialOwner, address governanceTokenAddress, address lendingPoolAddress) Ownable(initialOwner) {
+    constructor(address initialOwner, address governanceTokenAddress, uint256 _minimumVotesRequired) Ownable(initialOwner) {
         governanceToken = DefiFlexGovernanceToken(governanceTokenAddress);
-        lendingPoolContract = IDefiFlexLendingPool(lendingPoolAddress);
+        minimumVotesRequired = _minimumVotesRequired;
     }
 
-    /**
-     * @dev Function to set the lending pool contract address.
-     * @param lendingPoolAddress Address of the new lending pool contract.
-     */
-    function setLendingPoolContract(address lendingPoolAddress) external onlyOwner {
-        lendingPoolContract = IDefiFlexLendingPool(lendingPoolAddress);
+    function setMinimumVotesRequired(uint256 minimumVotes) external onlyOwner {
+        minimumVotesRequired = minimumVotes;
     }
 
-    /**
-     * @dev Function to propose a new governance proposal.
-     * @param title Title of the proposal.
-     * @param description Detailed description of the proposal.
-     */
-    function propose(string memory title, string memory description) external {
-        uint256 proposalId = proposalCount++;
+    function setVotingPeriod(uint256 period) external onlyOwner {
+        votingPeriod = period;
+    }
+
+    function proposeLoanRequest(
+        uint256 proposalId,
+        string memory title,
+        string memory description,
+        address borrowerAddress,
+        uint256 borrowingAmount,
+        uint256 collateralAmount,
+        uint256 interestRate,
+        uint256 duration
+    ) external returns (uint256) {
         Proposal storage newProposal = proposals[proposalId];
         newProposal.id = proposalId;
         newProposal.proposer = msg.sender;
         newProposal.title = title;
         newProposal.description = description;
+        newProposal.borrowerAddress = borrowerAddress;
+        newProposal.borrowingAmount = borrowingAmount;
+        newProposal.collateralAmount = collateralAmount;
+        newProposal.interestRate = interestRate;
+        newProposal.duration = duration;
         newProposal.votingStartTime = block.timestamp;
-        newProposal.votingEndTime = block.timestamp + 7 days; // 7-day voting period
+        newProposal.votingEndTime = block.timestamp + votingPeriod;
         newProposal.executed = false;
         newProposal.forVotes = 0;
         newProposal.againstVotes = 0;
+
+        emit ProposalCreated(proposalId, msg.sender, title, description);
+        return proposalId;
     }
 
-    /**
-     * @dev Function for governance token holders to vote in favor or against a proposal.
-     * @param proposalId ID of the proposal to vote on.
-     * @param support Boolean indicating whether the vote is in favor (`true`) or against (`false`).
-     */
     function vote(uint256 proposalId, bool support) external {
         Proposal storage proposal = proposals[proposalId];
         require(proposal.votingStartTime <= block.timestamp && block.timestamp <= proposal.votingEndTime, "Voting period has not started or has ended");
@@ -85,21 +102,10 @@ contract DefiFlexGovernanceContract is Ownable {
         proposal.hasVoted[msg.sender] = true;
     }
 
-    /**
-     * @dev Function to execute a proposal approved by majority vote.
-     * @param proposalId ID of the proposal to execute.
-     */
-    function executeProposal(uint256 proposalId) external onlyOwner {
+    function checkProposalApprovalStatus(uint256 proposalId) external view returns (bool) {
         Proposal storage proposal = proposals[proposalId];
-        require(block.timestamp > proposal.votingEndTime, "Voting period has not ended yet");
-        require(!proposal.executed, "Proposal has already been executed");
-
-        // Determine if proposal is approved based on votes
-        if (proposal.forVotes > proposal.againstVotes) {
-            // Execute the action of the approved proposal through the lending pool contract
-            lendingPoolContract.approveLoan(proposalId); // Example of specific action in lending pool contract
-            // You can add more specific actions here based on the proposal
-            proposal.executed = true;
-        }
+        return block.timestamp > proposal.votingEndTime &&
+           proposal.forVotes > minimumVotesRequired &&
+           proposal.againstVotes == 0;
     }
 }
