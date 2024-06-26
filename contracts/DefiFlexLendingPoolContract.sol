@@ -3,23 +3,9 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IDefiFlexLendingPool.sol";
+import "./IDefiFlexLendingPoolContract.sol";
 
-contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPool {
-    struct Loan {
-        address borrowToken;         // Token being borrowed
-        uint256 borrowAmount;        // Amount being borrowed
-        address collateralToken;     // Token used as collateral
-        uint256 collateralAmount;    // Amount of collateral in tokens
-        uint256 interestRate;        // Interest rate in percentage (e.g., 10 for 10%)
-        uint256 duration;            // Duration of the loan in blocks
-        uint256 startTime;           // Start time of the loan
-        address borrower;            // Address of the borrower
-        bool collateralized;         // Flag to track if collateral has been collected
-        bool repaid;                 // Flag to track if the loan has been repaid
-        uint256 penaltyRate;         // Penalty rate for late repayment per week
-        uint256 penaltyStartTime;    // Start time to calculate penalties
-    }
+contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPoolContract {
 
     mapping(address => uint256[]) public borrowerLoans;
     Loan[] public loans;
@@ -121,6 +107,12 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPool {
     }
 
     function getBorrowerLoans(address borrower) external override view returns (uint256[] memory) {
+        require(borrowerLoans[borrower].length > 0, "No loans found for this borrower");
         return borrowerLoans[borrower];
+    }
+
+    function getLoan(uint256 loanIndex) external view returns(Loan memory) {
+        require(loanIndex < loans.length, "Loan index out of bounds");
+        return loans[loanIndex];
     }
 }
