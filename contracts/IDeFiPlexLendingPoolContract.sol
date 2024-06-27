@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-interface IDefiFlexLendingPoolContract {
+interface IDeFiPlexLendingPoolContract {
     /**
      * @dev Event emitted when a new loan request is made.
      * @param loanIndex Index of the new loan in the loans array.

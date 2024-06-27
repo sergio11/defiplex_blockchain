@@ -5,15 +5,15 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title DefiFlexGovernanceToken
+ * @title DeFiPlexGovernanceTokenContract
  * @dev Implementation of a governance token allowing holders to vote on proposals.
  */
-contract DefiFlexGovernanceToken is ERC20, Ownable {
+contract DeFiPlexGovernanceTokenContract is ERC20, Ownable {
 
     /**
      * @dev Constructor that initializes the contract with the token's name and symbol.
      */
-    constructor(address initialOwner) ERC20("DefiFlex Governance Token", "DFXGOV") Ownable(initialOwner) {}
+    constructor(address initialOwner) ERC20("DeFiPlex Governance Token", "DFXGOV") Ownable(initialOwner) {}
 
     /**
      * @dev Function for the contract owner to mint new governance tokens.

@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("FlexTokenERC20Contract", function () {
+describe("PlexTokenERC20Contract", function () {
   let FlexToken;
   let flexToken;
   let owner;
@@ -11,7 +11,7 @@ describe("FlexTokenERC20Contract", function () {
   let addrs;
 
   beforeEach(async function () {
-    FlexToken = await ethers.getContractFactory("FlexTokenERC20Contract");
+    FlexToken = await ethers.getContractFactory("PlexTokenERC20Contract");
     [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners();
     flexToken = await FlexToken.deploy(owner.address);
   });

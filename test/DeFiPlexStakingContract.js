@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("DefiFlexStakingContract", function () {
+describe("DeFiPlexStakingContract", function () {
   let owner, addr1, addr2, addr3;
   let rewardToken, stakingToken1, stakingToken2;
   let stakingContract;
@@ -10,7 +10,7 @@ describe("DefiFlexStakingContract", function () {
     [owner, addr1, addr2, addr3] = await ethers.getSigners();
 
     // Deploy reward token
-    const FlexToken = await ethers.getContractFactory("FlexTokenERC20Contract");
+    const FlexToken = await ethers.getContractFactory("PlexTokenERC20Contract");
     rewardToken = await FlexToken.deploy(owner.address);
 
     // Deploy staking tokens
@@ -18,7 +18,7 @@ describe("DefiFlexStakingContract", function () {
     stakingToken2 = await FlexToken.deploy(owner.address);
 
     // Deploy staking contract
-    const StakingContract = await ethers.getContractFactory("DefiFlexStakingContract");
+    const StakingContract = await ethers.getContractFactory("DeFiPlexStakingContract");
     stakingContract = await StakingContract.deploy(owner.address, rewardToken);
 
     return { stakingContract, rewardToken, stakingToken1, stakingToken2, owner, addr1, addr2, addr3 };

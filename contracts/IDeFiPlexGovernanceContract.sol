@@ -2,10 +2,10 @@
 pragma solidity ^0.8.9;
 
 /**
- * @title IDefiFlexGovernanceContract
- * @dev Interface for the DefiFlexGovernanceContract.
+ * @title IDeFiPlexGovernanceContract
+ * @dev Interface for the DeFiPlexGovernanceContract.
  */
-interface IDefiFlexGovernanceContract {
+interface IDeFiPlexGovernanceContract {
 
     /**
      * @dev Event emitted when a new loan proposal is created.

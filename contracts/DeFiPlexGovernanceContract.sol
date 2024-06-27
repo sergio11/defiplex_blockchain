@@ -2,14 +2,14 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./DefiFlexGovernanceToken.sol";
-import "./IDefiFlexGovernanceContract.sol";
+import "./DeFiPlexGovernanceTokenContract.sol";
+import "./IDeFiPlexGovernanceContract.sol";
 
 /**
- * @title DefiFlexGovernanceContract
- * @dev This contract manages governance proposals for DefiFlex platform.
+ * @title DeFiPlexGovernanceContract
+ * @dev This contract manages governance proposals for DeFiPlex platform.
  */
-contract DefiFlexGovernanceContract is Ownable, IDefiFlexGovernanceContract {
+contract DeFiPlexGovernanceContract is Ownable, IDeFiPlexGovernanceContract {
 
     struct LoanProposal {
         uint256 loanProposalId;       // Unique ID of the loan proposal
@@ -24,18 +24,18 @@ contract DefiFlexGovernanceContract is Ownable, IDefiFlexGovernanceContract {
 
     uint256 public proposalCount;               // Total count of proposals created
     mapping(uint256 => LoanProposal) public loanProposals; // Mapping to store all loan proposals
-    DefiFlexGovernanceToken public governanceToken; // Instance of the governance token contract
+    DeFiPlexGovernanceTokenContract public governanceToken; // Instance of the governance token contract
     uint256 public minimumVotesRequired;        // Minimum number of votes required to approve a proposal
     uint256 public votingPeriod;                // Duration of the voting period for each proposal
 
     /**
      * @dev Constructor to initialize the contract with initial values.
      * @param initialOwner Address of the initial owner of the contract
-     * @param governanceTokenAddress Address of the DefiFlexGovernanceToken contract
+     * @param governanceTokenAddress Address of the DeFiPlexGovernanceTokenContract contract
      * @param _minimumVotesRequired Minimum number of votes required to approve a proposal
      */
     constructor(address initialOwner, address governanceTokenAddress, uint256 _minimumVotesRequired) Ownable(initialOwner) {
-        governanceToken = DefiFlexGovernanceToken(governanceTokenAddress);
+        governanceToken = DeFiPlexGovernanceTokenContract(governanceTokenAddress);
         minimumVotesRequired = _minimumVotesRequired;
     }
 

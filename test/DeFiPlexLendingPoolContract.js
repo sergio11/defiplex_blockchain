@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("DefiFlexLendingPoolContract", function () {
+describe("DeFiPlexLendingPoolContract", function () {
   let LendingPool;
   let lendingPool;
   let owner;
@@ -12,17 +12,17 @@ describe("DefiFlexLendingPoolContract", function () {
   let stakingContract;
 
   beforeEach(async function () {
-    LendingPool = await ethers.getContractFactory("DefiFlexLendingPoolContract");
+    LendingPool = await ethers.getContractFactory("DeFiPlexLendingPoolContract");
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
 
     // Deploy FlexTokenERC20Contract tokens
-    const FlexToken = await ethers.getContractFactory("FlexTokenERC20Contract");
+    const FlexToken = await ethers.getContractFactory("PlexTokenERC20Contract");
     flexToken1 = await FlexToken.deploy(owner.address);
     flexToken2 = await FlexToken.deploy(owner.address);
     rewardToken = await FlexToken.deploy(owner.address);
 
     // Deploy staking contract
-    const StakingContract = await ethers.getContractFactory("DefiFlexStakingContract");
+    const StakingContract = await ethers.getContractFactory("DeFiPlexStakingContract");
     stakingContract = await StakingContract.deploy(owner.address, rewardToken);
     // Deploy lending pool
     lendingPool = await LendingPool.deploy(owner.address, stakingContract);

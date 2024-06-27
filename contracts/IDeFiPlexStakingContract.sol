@@ -2,10 +2,10 @@
 pragma solidity ^0.8.9;
 
 /**
- * @title Interface for the DefiFlex Staking contract.
- * @dev This interface defines the functions and events of the DefiFlex Staking contract.
+ * @title Interface for the DeFiPlex Staking contract.
+ * @dev This interface defines the functions and events of the DeFiPlex Staking contract.
  */
-interface IDefiFlexStakingContract {
+interface IDeFiPlexStakingContract {
 
     event StakingTokenAdded(address stakingTokenAddress, uint256 rewardRate);
 

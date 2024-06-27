@@ -1,9 +1,9 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("DefiFlexGovernanceContract", function () {
-  let DefiFlexGovernanceContract;
-  let DefiFlexGovernanceToken;
+describe("DeFiPlexGovernanceContract", function () {
+  let DeFiPlexGovernanceContract;
+  let DeFiPlexGovernanceToken;
   let governanceContract;
   let governanceToken;
   let owner;
@@ -12,14 +12,14 @@ describe("DefiFlexGovernanceContract", function () {
   let addr3;
 
   beforeEach(async function () {
-    DefiFlexGovernanceContract = await ethers.getContractFactory("DefiFlexGovernanceContract");
-    DefiFlexGovernanceToken = await ethers.getContractFactory("DefiFlexGovernanceToken");
+    DeFiPlexGovernanceContract = await ethers.getContractFactory("DeFiPlexGovernanceContract");
+    DeFiPlexGovernanceToken = await ethers.getContractFactory("DeFiPlexGovernanceTokenContract");
 
     [owner, addr1, addr2, addr3, ...addrs] = await ethers.getSigners();
 
     // Deploy governance token and governance contract
-    governanceToken = await DefiFlexGovernanceToken.deploy(owner.address);
-    governanceContract = await DefiFlexGovernanceContract.deploy(owner.address, governanceToken, 10);
+    governanceToken = await DeFiPlexGovernanceToken.deploy(owner.address);
+    governanceContract = await DeFiPlexGovernanceContract.deploy(owner.address, governanceToken, 10);
 
     // Mint tokens for testing
     await governanceToken.connect(owner).mint(owner, 1000); // Mint 1000 tokens for owner

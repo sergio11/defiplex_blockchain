@@ -3,17 +3,17 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IDefiFlexLendingPoolContract.sol";
+import "./IDeFiPlexLendingPoolContract.sol";
 
-contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPoolContract {
+contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
 
     mapping(address => uint256[]) public borrowerLoans;
     Loan[] public loans;
 
-    address private _defiFlexStakingContract;
+    address private _stakingContract;
 
-    constructor(address initialOwner, address defiFlexStakingContract) Ownable(initialOwner) {
-        _defiFlexStakingContract = defiFlexStakingContract;
+    constructor(address initialOwner, address stakingContract) Ownable(initialOwner) {
+        _stakingContract = stakingContract;
     }
 
     function requestLoan(
@@ -53,12 +53,12 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPoolContract {
     function approveLoan(uint256 loanIndex) external override onlyOwner {
         Loan storage loan = loans[loanIndex];
         require(!loan.collateralized, "Collateral already collected");
-        require(IERC20(loan.borrowToken).balanceOf(_defiFlexStakingContract) >= loan.borrowAmount, "Insufficient borrow token amount in lending pool");
+        require(IERC20(loan.borrowToken).balanceOf(_stakingContract) >= loan.borrowAmount, "Insufficient borrow token amount in lending pool");
         require(IERC20(loan.collateralToken).balanceOf(loan.borrower) >= loan.collateralAmount, "Borrower does not have enough collateral tokens");
 
         IERC20(loan.collateralToken).transferFrom(loan.borrower, address(this), loan.collateralAmount);
         loan.collateralized = true;
-        IERC20(loan.borrowToken).transferFrom(_defiFlexStakingContract, loan.borrower, loan.borrowAmount);
+        IERC20(loan.borrowToken).transferFrom(_stakingContract, loan.borrower, loan.borrowAmount);
 
         emit CollateralCollected(loanIndex, loan.borrower, loan.collateralToken, loan.collateralAmount);
         emit LoanApproved(loanIndex, loan.borrower, loan.borrowAmount);
@@ -85,7 +85,7 @@ contract DefiFlexLendingPoolContract is Ownable, IDefiFlexLendingPoolContract {
         }
 
         require(IERC20(loan.borrowToken).balanceOf(loan.borrower) >= repaymentAmount, "Insufficient borrower funds");
-        IERC20(loan.borrowToken).transferFrom(loan.borrower, _defiFlexStakingContract, repaymentAmount);
+        IERC20(loan.borrowToken).transferFrom(loan.borrower, _stakingContract, repaymentAmount);
 
         // Return collateral to borrower
         if (loan.collateralized) {

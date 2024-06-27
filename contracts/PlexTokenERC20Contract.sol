@@ -4,10 +4,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract FlexTokenERC20Contract is ERC20Burnable, Ownable {
+contract PlexTokenERC20Contract is ERC20Burnable, Ownable {
     uint256 private constant INITIAL_SUPPLY = 1000000 * 10 ** 18; // 1,000,000 tokens with 18 decimals
 
-    constructor(address initialOwner) ERC20("Flex Token", "FLEX") Ownable(initialOwner) {
+    constructor(address initialOwner) ERC20("Plex Token", "PLEX") Ownable(initialOwner) {
         _mint(msg.sender, INITIAL_SUPPLY);
     }
 

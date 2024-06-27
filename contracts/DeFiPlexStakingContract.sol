@@ -4,13 +4,13 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IDefiFlexStakingContract.sol";
+import "./IDeFiPlexStakingContract.sol";
 
 /**
- * @title DefiFlex Staking Contract
+ * @title DeFiPlex Staking Contract
  * @dev A contract that allows users to stake multiple ERC20 tokens and earn rewards over time.
  */
-contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
+contract DeFiPlexStakingContract is Ownable, IDeFiPlexStakingContract {
     using SafeERC20 for IERC20;
 
     struct StakingInfo {
