@@ -61,6 +61,8 @@ contract DefiFlexGovernanceContract is Ownable, IDefiFlexGovernanceContract {
      * @return loanProposalId ID of the created loan proposal
      */
     function proposeLoanRequest(uint256 loanProposalId) external returns (uint256) {
+        require(loanProposals[loanProposalId].proposer == address(0), "Proposal ID already exists");
+
         LoanProposal storage newProposal = loanProposals[loanProposalId];
         newProposal.loanProposalId = loanProposalId;
         newProposal.proposer = msg.sender;
@@ -69,6 +71,7 @@ contract DefiFlexGovernanceContract is Ownable, IDefiFlexGovernanceContract {
         newProposal.executed = false;
         newProposal.forVotes = 0;
         newProposal.againstVotes = 0;
+        proposalCount++;
 
         emit LoanProposalCreated(loanProposalId, msg.sender);
         return loanProposalId;

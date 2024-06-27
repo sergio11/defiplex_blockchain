@@ -54,4 +54,25 @@ interface IDefiFlexGovernanceContract {
      * @return Whether the proposal is approved.
      */
     function checkProposalApprovalStatus(uint256 proposalId) external view returns (bool);
+
+    /**
+     * @dev Get the details of a loan proposal.
+     * @param proposalId The ID of the proposal to get details for.
+     * @return loanProposalId The ID of the loan proposal.
+     * @return proposer The address of the proposer.
+     * @return votingStartTime The start time of the voting period.
+     * @return votingEndTime The end time of the voting period.
+     * @return executed Whether the proposal has been executed.
+     * @return forVotes The number of votes in favor of the proposal.
+     * @return againstVotes The number of votes against the proposal.
+     */
+    function getProposalDetails(uint256 proposalId) external view returns (
+        uint256 loanProposalId,
+        address proposer,
+        uint256 votingStartTime,
+        uint256 votingEndTime,
+        bool executed,
+        uint256 forVotes,
+        uint256 againstVotes
+    );
 }
