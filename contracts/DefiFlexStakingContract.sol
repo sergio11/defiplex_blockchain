@@ -81,6 +81,9 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
     function stake(address _stakingTokenAddress, uint256 _amount) external override updateReward(_stakingTokenAddress, msg.sender) {
         require(_amount > 0, "Cannot stake 0 tokens");
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
+        // Check if the user has enough balance to stake
+        uint256 userBalance = info.stakingToken.balanceOf(msg.sender);
+        require(userBalance >= _amount, "Insufficient funds to stake");
 
         info.totalSupply += _amount;
         info.userStakedAmount[msg.sender] += _amount;
@@ -101,6 +104,10 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
     function withdraw(address _stakingTokenAddress, uint256 _amount) external override updateReward(_stakingTokenAddress, msg.sender) {
         require(_amount > 0, "Cannot withdraw 0 tokens");
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
+        require(info.userStakedAmount[msg.sender] >= _amount, "Insufficient staked amount");
+
+        uint256 contractBalance = info.stakingToken.balanceOf(address(this));
+        require(contractBalance >= _amount, "Insufficient funds in the contract");
 
         info.totalSupply -= _amount;
         info.userStakedAmount[msg.sender] -= _amount;

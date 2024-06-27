@@ -129,6 +129,15 @@ describe("DefiFlexStakingContract", function () {
       balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
       expect(balance).to.equal(20);
     });
+
+    it("Should revert if user tries to withdraw more than staked", async function () {
+      await stakingContract.connect(addr1).stake(stakingToken1, 50);
+      await expect(stakingContract.connect(addr1).withdraw(stakingToken1, 60)).to.be.revertedWith("Insufficient staked amount");
+    });
+
+    it("Should revert if contract has insufficient funds for withdrawal", async function () {
+      await expect(stakingContract.connect(addr1).withdraw(stakingToken1, 50)).to.be.reverted;
+    });
   });
 
   describe("Withdrawing Tokens", function () {
