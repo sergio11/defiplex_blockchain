@@ -182,24 +182,24 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
     }
 
     /**
-     * @dev Get the total amount of rewards earned by a user for a specific staking token
+     * @dev Get the pending rewards for a user for a specific staking token
      * @param _stakingTokenAddress Address of the ERC20 token
      * @param _account Address of the user
-     * @return Total amount of rewards earned by the user (in wei)
+     * @return Total amount of pending rewards for the user (in wei)
      */
-    function getEarnedRewards(address _stakingTokenAddress, address _account) external view override returns (uint256) {
+    function getPendingRewards(address _stakingTokenAddress, address _account) external view returns (uint256) {
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         uint256 timeElapsed = block.timestamp - info.userLastStakedTime[_account];
         return (info.userStakedAmount[_account] * info.rewardRate * timeElapsed) / (1 weeks);
     }
 
     /**
-     * @dev Get the total rewards accumulated by a user for a specific staking token
+     * @dev Get the consolidated rewards for a user for a specific staking token
      * @param _stakingTokenAddress Address of the ERC20 token
      * @param _account Address of the user
-     * @return Total rewards accumulated by the user (in wei)
+     * @return Total consolidated rewards for the user (in wei)
      */
-    function getTotalRewards(address _stakingTokenAddress, address _account) external view returns (uint256) {
+    function getConsolidatedRewards(address _stakingTokenAddress, address _account) external view returns (uint256) {
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         return info.userRewards[_account];
     }
@@ -215,7 +215,7 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
             return;
         }
 
-        uint256 reward = this.getEarnedRewards(stakingTokenAddress, account);
+        uint256 reward = this.getPendingRewards(stakingTokenAddress, account);
         info.userRewards[account] += reward;
         info.userLastStakedTime[account] = block.timestamp;
     }

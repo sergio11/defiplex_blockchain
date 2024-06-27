@@ -166,7 +166,7 @@ describe("DefiFlexStakingContract", function () {
 
       const initialRewardBalance = await rewardToken.balanceOf(addr1.address);
       await stakingContract.connect(addr1).withdraw(stakingToken1, 20);
-      const earnedRewards = await stakingContract.connect(addr1).getTotalRewards(stakingToken1, addr1.address);
+      const earnedRewards = await stakingContract.connect(addr1).getConsolidatedRewards(stakingToken1, addr1.address);
       await stakingContract.connect(addr1).claimReward(stakingToken1)
       const balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
       const finalRewardBalance = await rewardToken.balanceOf(addr1.address);
@@ -184,13 +184,13 @@ describe("DefiFlexStakingContract", function () {
 
       const initialRewardBalance = await rewardToken.balanceOf(addr1.address);
       await stakingContract.connect(addr1).withdraw(stakingToken1, 20);
-      const earnedRewardsAfterWithDraw = await stakingContract.connect(addr1).getTotalRewards(stakingToken1, addr1.address);
+      const earnedRewardsAfterWithDraw = await stakingContract.connect(addr1).getConsolidatedRewards(stakingToken1, addr1.address);
       
       // Fast-forward time by 1 week
       await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
 
-      const earnedRewardsBeforeClaim = await stakingContract.connect(addr1).getEarnedRewards(stakingToken1, addr1.address);
+      const earnedRewardsBeforeClaim = await stakingContract.connect(addr1).getPendingRewards(stakingToken1, addr1.address);
 
       await stakingContract.connect(addr1).claimReward(stakingToken1)
       const balance = await stakingContract.balanceOf(stakingToken1, addr1.address);
@@ -220,7 +220,7 @@ describe("DefiFlexStakingContract", function () {
       await ethers.provider.send("evm_mine", []);
   
       const initialRewardBalance = await rewardToken.balanceOf(addr1.address);
-      const earnedRewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      const earnedRewards = await stakingContract.getPendingRewards(stakingToken1, addr1.address);
   
       await stakingContract.connect(addr1).claimReward(stakingToken1);
       const finalRewardBalance = await rewardToken.balanceOf(addr1.address);
@@ -234,7 +234,7 @@ describe("DefiFlexStakingContract", function () {
       await ethers.provider.send("evm_mine", []);
   
       await stakingContract.connect(addr1).claimReward(stakingToken1);
-      const userRewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      const userRewards = await stakingContract.getPendingRewards(stakingToken1, addr1.address);
   
       expect(userRewards).to.equal(0);
     });
@@ -297,7 +297,7 @@ describe("DefiFlexStakingContract", function () {
       await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
 
-      const rewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      const rewards = await stakingContract.getPendingRewards(stakingToken1, addr1.address);
       expect(rewards).to.be.gt(0);
     });
 
@@ -307,14 +307,14 @@ describe("DefiFlexStakingContract", function () {
       await ethers.provider.send("evm_mine", []);
 
       await stakingContract.connect(addr1).claimReward(stakingToken1);
-      const totalRewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      const totalRewards = await stakingContract.getPendingRewards(stakingToken1, addr1.address);
       expect(totalRewards).to.equal(0);
 
       // Fast-forward time by another week
       await ethers.provider.send("evm_increaseTime", [7 * 24 * 60 * 60]);
       await ethers.provider.send("evm_mine", []);
 
-      const newTotalRewards = await stakingContract.getEarnedRewards(stakingToken1, addr1.address);
+      const newTotalRewards = await stakingContract.getPendingRewards(stakingToken1, addr1.address);
       expect(newTotalRewards).to.be.gt(0);
     });
   });
