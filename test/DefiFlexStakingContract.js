@@ -254,6 +254,14 @@ describe("DefiFlexStakingContract", function () {
   
       expect(stakedBalanceBefore).to.equal(stakedBalanceAfter);
     });
+
+    it("Should revert if user tries to claim rewards with no staked tokens", async function () {
+      await expect(stakingContract.connect(addr2).claimReward(stakingToken1)).to.be.reverted;
+    });
+
+    it("Should revert if user tries to claim rewards with no rewards available", async function () {
+      await expect(stakingContract.connect(addr1).claimReward(stakingToken1)).to.be.reverted;
+    });
   });
 
   describe("Setting Reward Rate", function () {

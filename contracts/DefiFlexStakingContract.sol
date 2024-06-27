@@ -120,8 +120,11 @@ contract DefiFlexStakingContract is Ownable, IDefiFlexStakingContract {
      * @dev Claim accumulated rewards
      * @param _stakingTokenAddress Address of the ERC20 token for which rewards are claimed
      */
-    function claimReward(address _stakingTokenAddress) external override updateReward(_stakingTokenAddress, msg.sender) {
+    function claimReward(address _stakingTokenAddress) external updateReward(_stakingTokenAddress, msg.sender) {
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
+        uint256 stakedAmount = info.userStakedAmount[msg.sender];
+        require(stakedAmount > 0, "No staked tokens to claim reward");
+
         uint256 reward = info.userRewards[msg.sender];
         require(reward > 0, "No reward to claim");
 
