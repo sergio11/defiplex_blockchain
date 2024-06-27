@@ -62,7 +62,7 @@ describe("DeFiPlexGovernanceContract", function () {
     expect(proposal.forVotes).to.equal(1000); // Check that forVotes match the approved tokens
   });
 
-  it("Should check proposal approval status without minimun votes required", async function () {
+  it("Should not approve a proposal if criteria are not met", async function () {
     await governanceContract.setVotingPeriod(86400); // Set voting period to 1 day (86400 seconds)
     await governanceContract.proposeLoanRequest(1);
     // Move time forward to voting period
@@ -73,7 +73,7 @@ describe("DeFiPlexGovernanceContract", function () {
     expect(isApproved).to.be.false;
   });
 
-  it("Should check proposal approval status with minimun votes required", async function () {
+  it("Should approve a proposal if criteria are met", async function () {
     await governanceContract.setVotingPeriod(86400); // Set voting period to 1 day (86400 seconds)
     await governanceContract.setMinimumVotesRequired(999); // Set minimum votes to 999
     await governanceContract.proposeLoanRequest(1);
@@ -91,6 +91,26 @@ describe("DeFiPlexGovernanceContract", function () {
     expect(proposal.forVotes).to.equal(1000); // Check that forVotes match the approved tokens
     expect(isApproved).to.be.true;
   });
+  
+  it("Should not approve a proposal if there are votes against it", async function () {
+    await governanceContract.setVotingPeriod(86400); // Set voting period to 1 day (86400 seconds)
+    await governanceContract.setMinimumVotesRequired(999); // Set minimum votes to 999
+    // Propose a loan request
+    await governanceContract.proposeLoanRequest(3);
+    
+    // Vote against proposal 3
+    await governanceContract.connect(owner).vote(3, false);
+    
+    // Move time forward beyond votingEndTime
+    await ethers.provider.send("evm_increaseTime", [1000000]); // Assuming enough time has passed
+    await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+    
+    // Check if proposal 3 is approved
+    const isApproved = await governanceContract.checkProposalApprovalStatus(3);
+    
+    // Assert that the proposal is not approved
+    expect(isApproved).to.be.false;
+});
 
   it("Should revert on trying to vote on non-existent proposal", async function () {
     await expect(governanceContract.vote(2, true)).to.be.reverted;
@@ -120,5 +140,30 @@ describe("DeFiPlexGovernanceContract", function () {
 
     // Try to vote outside voting period
     await expect(governanceContract.connect(addr1).vote(1, true)).to.be.revertedWith("Voting period has not started or has ended");
+  });
+
+  it("Should retrieve correct details of a loan proposal", async function () {
+    await governanceContract.setVotingPeriod(86400);
+    // Propose a loan request
+    await governanceContract.proposeLoanRequest(4);
+    
+    // Get proposal details for proposal 4
+    const [
+        loanProposalId,
+        proposer,
+        votingStartTime,
+        votingEndTime,
+        executed,
+        forVotes,
+        againstVotes
+    ] = await governanceContract.getProposalDetails(4);
+    
+    // Assert that the returned details are correct
+    expect(loanProposalId).to.equal(4);
+    expect(proposer).to.equal(owner.address); // Assuming owner proposed the loan
+    expect(executed).to.be.false; // Check if executed is initially false
+    expect(votingEndTime).to.greaterThan(votingStartTime); // Check if executed is initially false
+    expect(forVotes).to.equal(0); // Check if forVotes is initially 0
+    expect(againstVotes).to.equal(0); // Check if againstVotes is initially 0
   });
 });
