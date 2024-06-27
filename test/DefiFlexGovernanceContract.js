@@ -100,4 +100,25 @@ describe("DefiFlexGovernanceContract", function () {
     await governanceContract.proposeLoanRequest(1);
     await expect(governanceContract.proposeLoanRequest(1)).to.be.reverted;
   });
+
+  it("Should revert when user tries to vote again", async function () {
+    await governanceContract.setVotingPeriod(86400); // Set voting period to 1 day (86400 seconds)
+    await governanceContract.proposeLoanRequest(1);
+    await governanceToken.connect(addr1).approve(governanceContract, 100); // Approve tokens for voting
+    await governanceContract.connect(addr1).vote(1, true); // Vote in favor of proposal 1
+
+    // Try to vote again
+    await expect(governanceContract.connect(addr1).vote(1, true)).to.be.revertedWith("You have already voted");
+  });
+
+  it("Should revert when user tries to vote outside voting period", async function () {
+    await governanceContract.proposeLoanRequest(1);
+    await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+    await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+
+    await governanceToken.connect(addr1).approve(governanceContract, 100); // Approve tokens for voting
+
+    // Try to vote outside voting period
+    await expect(governanceContract.connect(addr1).vote(1, true)).to.be.revertedWith("Voting period has not started or has ended");
+  });
 });
