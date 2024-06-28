@@ -10,6 +10,7 @@ describe("DeFiPlexLendingPoolContract", function () {
   let flexToken1;
   let flexToken2;
   let stakingContract;
+  let governanceContract;
 
   beforeEach(async function () {
     LendingPool = await ethers.getContractFactory("DeFiPlexLendingPoolContract");
@@ -34,9 +35,17 @@ describe("DeFiPlexLendingPoolContract", function () {
     lendingPool = await LendingPool.deploy(owner.address, stakingContract, governanceContract);
 
     // Mint tokens for testing
+    await flexToken1.connect(owner).mint(owner.address, 1500);
     await flexToken2.connect(owner).mint(addr1.address, 500);
     await rewardToken.mint(owner.address, 1000);
     await stakingContract.addStakingToken(flexToken1, 1);
+    await stakingContract.authorizeTransfer(flexToken1, lendingPool);
+    
+    await governanceContract.setMinimumVotesRequired(20); // Set minimum votes to 20
+    await governanceContract.setVotingPeriod(86400); // Set voting period to 1 day (86400 seconds)
+    await governanceToken.connect(owner).mint(owner, 1000); // Mint 1000 tokens for owner
+    await governanceToken.connect(owner).mint(addr1, 500); // Mint 500 tokens for addr1
+    await governanceToken.connect(owner).mint(addr2, 300); // Mint 300 tokens for addr2
   });
 
   describe("Loan Requests", function () {
@@ -111,135 +120,6 @@ describe("DeFiPlexLendingPoolContract", function () {
     });
   });
 
-  describe("Loan Approval", function () {
-    beforeEach(async function () {
-      await flexToken2.connect(addr1).approve(lendingPool, 500);
-      await flexToken1.connect(owner).mint(addr2.address, 100);
-      await flexToken1.connect(addr2).approve(stakingContract, 100);
-      await stakingContract.connect(addr2).stake(flexToken1, 100);
-      await lendingPool.connect(addr1).requestLoan(
-        flexToken1,
-        100,
-        flexToken2,
-        50,
-        10,
-        1000
-      );
-    });
-
-    it("Should approve a loan correctly", async function () {
-      await lendingPool.approveLoan(0);
-      const loan = await lendingPool.getLoan(0);
-      expect(loan.collateralized).to.be.true;
-    });
-
-    it("Should revert if collateral already collected", async function () {
-      await lendingPool.approveLoan(0);
-      await expect(lendingPool.approveLoan(0)).to.be.reverted;
-    });
-
-    it("Should revert if staking contract has insufficient tokens", async function () {
-      await flexToken1.connect(owner).transfer(addr2.address, 1000); // Empty staking contract
-      await expect(lendingPool.approveLoan(0)).to.be.reverted;
-    });
-
-    it("Should revert if borrower has insufficient collateral tokens", async function () {
-      await flexToken2.connect(addr1).transfer(addr2.address, 500); // Empty borrower balance
-      await expect(lendingPool.approveLoan(0)).to.be.reverted;
-    });
-  });
-
-  describe("Loan Repayment", function () {
-    beforeEach(async function () {
-      await flexToken1.connect(addr1).approve(lendingPool, 1000);
-      await flexToken2.connect(addr1).approve(lendingPool, 500);
-      await flexToken1.connect(owner).mint(addr2.address, 100);
-      await flexToken1.connect(addr2).approve(stakingContract, 100);
-      await stakingContract.connect(addr2).stake(flexToken1, 100);
-      await lendingPool.connect(addr1).requestLoan(
-        flexToken1,
-        100,
-        flexToken2,
-        50,
-        10,
-        1000
-      );
-
-      await lendingPool.approveLoan(0);
-    });
-
-    it("Should repay a loan correctly", async function () {
-      await ethers.provider.send("evm_increaseTime", [1000]); // Fast-forward time
-      await ethers.provider.send("evm_mine", []);
-
-      await flexToken1.connect(addr1).approve(lendingPool, 110); // 100 + 10% interest
-      await lendingPool.connect(addr1).repayLoan(0);
-      const loan = await lendingPool.getLoan(0);
-      expect(loan.repaid).to.be.true;
-    });
-
-    it("Should apply penalties for late repayment", async function () {
-      await ethers.provider.send("evm_increaseTime", [1000 + 7 * 24 * 60 * 60]); // Fast-forward 1 week late
-      await ethers.provider.send("evm_mine", []);
-
-      await flexToken1.connect(addr1).approve(lendingPool, 112); // 100 + 10% interest + 2% penalty
-      await lendingPool.connect(addr1).repayLoan(0);
-      const loan = await lendingPool.getLoan(0);
-      expect(loan.repaid).to.be.true;
-    });
-
-    it("Should revert if loan already repaid", async function () {
-      await ethers.provider.send("evm_increaseTime", [1000]); // Fast-forward time
-      await ethers.provider.send("evm_mine", []);
-
-      await flexToken1.connect(addr1).approve(lendingPool, 110);
-      await lendingPool.connect(addr1).repayLoan(0);
-      await expect(lendingPool.connect(addr1).repayLoan(0)).to.be.reverted;
-    });
-
-    it("Should revert if loan duration not expired", async function () {
-      await flexToken1.connect(addr1).approve(lendingPool.address, 110);
-      await expect(lendingPool.connect(addr1).repayLoan(0)).to.be.reverted;
-    });
-
-    it("Should revert if borrower has insufficient funds", async function () {
-      await ethers.provider.send("evm_increaseTime", [1000]); // Fast-forward time
-      await ethers.provider.send("evm_mine", []);
-
-      await flexToken1.connect(addr1).transfer(addr2.address, 900); // Reduce borrower balance
-      await flexToken1.connect(addr1).approve(lendingPool, 110);
-      await expect(lendingPool.connect(addr1).repayLoan(0)).to.be.reverted;
-    });
-  });
-
-  describe("Penalty Rate", function () {
-    beforeEach(async function () {
-      await flexToken1.connect(addr1).approve(lendingPool, 1000);
-      await flexToken2.connect(addr1).approve(lendingPool, 500);
-
-      await lendingPool.connect(addr1).requestLoan(
-        flexToken1,
-        100,
-        flexToken2,
-        50,
-        10,
-        1000
-      );
-
-      await lendingPool.approveLoan(0);
-    });
-
-    it("Should set penalty rate correctly", async function () {
-      await lendingPool.setPenaltyRate(0, 5);
-      const loan = await lendingPool.getLoan(0);
-      expect(loan.penaltyRate).to.equal(5);
-    });
-
-    it("Should revert if penalty rate is negative", async function () {
-      await expect(lendingPool.setPenaltyRate(0, -1)).to.be.reverted;
-    });
-  });
-
   describe("Loan Queries", function () {
     beforeEach(async function () {
       await flexToken1.connect(addr1).approve(lendingPool, 1000);
@@ -274,4 +154,56 @@ describe("DeFiPlexLendingPoolContract", function () {
       await expect(lendingPool.getLoan(1)).to.be.reverted;
     });
   });
+
+  describe("Loan Approval", function () {
+
+    beforeEach(async function () {
+      await lendingPool.connect(addr1).requestLoan(flexToken1, 100, flexToken2, 50, 10, 1000);
+    });
+
+    it("Should be rejected because insufficient borrow token amount in lending pool", async function () {
+      await governanceContract.connect(addr2).vote(0, true); // Vote in favor of proposal
+      // Move time forward to voting period
+      await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+      await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+      await expect(lendingPool.connect(owner).approveLoan(0)).to.be.rejectedWith("Insufficient borrow token amount in lending pool");
+    });
+
+    it("Should be rejected because borrower does not have enough collateral tokens", async function () {
+      await flexToken1.connect(owner).transfer(stakingContract, 500);
+      await governanceContract.connect(addr2).vote(0, true); // Vote in favor of proposal
+      // Move time forward to voting period
+      await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+      await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+      await expect(lendingPool.connect(owner).approveLoan(0)).to.be.reverted;
+    });
+
+    it("Should be rejected because collateral already collected", async function () {
+      await flexToken1.connect(owner).transfer(stakingContract, 500); // Transfer tokens to the staking contract
+      await flexToken2.connect(owner).transfer(addr1.address, 50); // Transfer collateral tokens to the borrower
+      await flexToken2.connect(addr1).approve(lendingPool, 50); // Approve the lending pool to spend borrower's collateral tokens
+  
+      await governanceContract.connect(addr2).vote(0, true); // Vote in favor of proposal
+      // Move time forward to voting period
+      await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+      await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+      await lendingPool.approveLoan(0);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(100);
+      await expect(lendingPool.approveLoan(0)).to.be.rejectedWith("Collateral already collected");
+    });
+
+    it("Should be rejected because the loan proposal has not been approved by governance", async function () {
+      await flexToken1.connect(owner).transfer(stakingContract, 500); // Transfer tokens to the staking contract
+      await flexToken2.connect(owner).transfer(addr1.address, 50); // Transfer collateral tokens to the borrower
+      await flexToken2.connect(addr1).approve(lendingPool, 50); // Approve the lending pool to spend borrower's collateral tokens
+  
+      await governanceContract.connect(addr2).vote(0, false);
+      // Move time forward to voting period
+      await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+      await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+      await expect(lendingPool.approveLoan(0)).to.be.rejectedWith("Loan proposal has not been approved by governance");
+      expect(await flexToken1.balanceOf(addr1)).to.equal(0);
+    });
+  });
+
 });

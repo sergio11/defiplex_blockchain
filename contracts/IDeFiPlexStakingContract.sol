@@ -113,4 +113,35 @@ interface IDeFiPlexStakingContract {
      * @return Total consolidated rewards for the user (in wei)
      */
     function getConsolidatedRewards(address _stakingTokenAddress, address _account) external view returns (uint256);
+
+    /**
+     * @dev Authorize an address to perform token transfers on behalf of the staking contract
+     * @param token Address of the ERC20 token
+     * @param target Address to authorize
+     */
+    function authorizeTransfer(address token, address target) external;
+
+    /**
+     * @dev Revoke authorization from an address to perform token transfers
+     * @param token Address of the ERC20 token
+     * @param target Address to revoke authorization from
+     */
+    function revokeAuthorization(address token, address target) external;
+
+
+    /**
+     * @dev Check if an address is authorized to perform token transfers
+     * @param token Address of the ERC20 token
+     * @param target Address to check
+     * @return True if authorized, false otherwise
+     */
+    function isAuthorizedTransfer(address token, address target) external view returns (bool);
+
+    /**
+     * @dev Transfer ERC20 tokens from the staking contract to a target address
+     * @param token Address of the ERC20 token
+     * @param target Address to which tokens will be transferred
+     * @param amount Amount of tokens to transfer
+     */
+    function transferTokensTo(address token, address target, uint256 amount) external;
 }

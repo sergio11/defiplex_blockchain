@@ -31,12 +31,24 @@ contract DeFiPlexStakingContract is Ownable, IDeFiPlexStakingContract {
     // Mapping from token address to staking info
     mapping(address => StakingInfo) private _stakingInfos;
 
+    // Mapping to track authorized addresses for token transfers
+   mapping(address => mapping(address => bool)) private _authorizedTransfer;
+
     /**
      * @dev Constructor function
+     * @param initialOwner Address of the initial owner of the contract
      * @param rewardTokenAddress Address of the ERC20 token used as rewards
      */
     constructor(address initialOwner, address rewardTokenAddress) Ownable(initialOwner) {
         _rewardToken = IERC20(rewardTokenAddress);
+    }
+
+    /**
+     * @dev Modifier to ensure the caller is authorized for token transfers
+     */
+    modifier onlyAuthorizedTransfer(address token) {
+        require(_authorizedTransfer[token][msg.sender], "Unauthorized transfer");
+        _;
     }
 
     /**
@@ -205,6 +217,63 @@ contract DeFiPlexStakingContract is Ownable, IDeFiPlexStakingContract {
     function getConsolidatedRewards(address _stakingTokenAddress, address _account) external view returns (uint256) {
         StakingInfo storage info = _stakingInfos[_stakingTokenAddress];
         return info.userRewards[_account];
+    }
+
+    /**
+     * @dev Authorize an address to perform token transfers on behalf of the staking contract
+     * @param token Address of the ERC20 token
+     * @param target Address to authorize
+     */
+    function authorizeTransfer(address token, address target) external onlyOwner {
+        _authorizedTransfer[token][target] = true;
+    }
+
+    /**
+     * @dev Revoke authorization from an address to perform token transfers
+     * @param token Address of the ERC20 token
+     * @param target Address to revoke authorization from
+     */
+    function revokeAuthorization(address token, address target) external onlyOwner {
+        _authorizedTransfer[token][target] = false;
+    }
+
+    /**
+     * @dev Check if an address is authorized to perform token transfers
+     * @param token Address of the ERC20 token
+     * @param target Address to check
+     * @return True if authorized, false otherwise
+     */
+    function isAuthorizedTransfer(address token, address target) external view returns (bool) {
+        return _authorizedTransfer[token][target];
+    }
+    
+    /**
+     * @dev Transfer ERC20 tokens from the staking contract to a target address
+     * @param token Address of the ERC20 token
+     * @param target Address to which tokens will be transferred
+     * @param amount Amount of tokens to transfer
+     */
+    function transferTokensTo(address token, address target, uint256 amount) external override onlyAuthorizedTransfer(token) {
+        // Check if the current allowance is sufficient
+        uint256 currentAllowance = IERC20(token).allowance(address(this), msg.sender);
+        
+        // If the current allowance is less than the amount, approve the necessary amount
+        if (currentAllowance < amount) {
+            // Resetting to zero first to avoid potential issues with some ERC20 implementations
+            if (currentAllowance > 0) {
+                require(IERC20(token).approve(msg.sender, 0), "Approval reset failed");
+            }
+            require(IERC20(token).approve(msg.sender, amount), "Approval failed");
+        }
+
+        // Require that the allowance is sufficient
+        require(IERC20(token).allowance(address(this), msg.sender) >= amount, "Allowance not sufficient");
+
+        // Require that the staking contract has enough tokens
+        require(IERC20(token).balanceOf(address(this)) >= amount, "Insufficient balance in staking contract");
+
+        // msg.sender calls safeTransfer to move the tokens
+        IERC20(token).safeTransfer(target, amount);
     }
 
     /**

@@ -2,9 +2,11 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IDeFiPlexLendingPoolContract.sol";
 import "./IDeFiPlexGovernanceContract.sol";
+import "./IDeFiPlexStakingContract.sol";
 
 /**
  * @title DeFiPlexLendingPoolContract
@@ -12,9 +14,12 @@ import "./IDeFiPlexGovernanceContract.sol";
  * It allows users to request loans, approve loans, and repay loans. Additionally, it manages collateral and penalties for late repayment.
  */
 contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
+     using SafeERC20 for IERC20;
 
     // Mapping to store loans for each borrower
     mapping(address => uint256[]) public borrowerLoans;
+
+    uint256 private _loanCount; 
 
     // Array to store all loan details
     Loan[] public loans;
@@ -55,6 +60,18 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         require(interestRate > 0, "Interest rate must be greater than zero");
         require(collateralAmount > 0, "Collateral amount must be greater than zero");
         require(duration > 0, "Loan duration must be greater than zero");
+        require(borrowToken != address(0), "Invalid borrowToken address");
+        // Check if the address is a contract (basic verification)
+        uint256 size;
+        assembly {
+            size := extcodesize(borrowToken)
+        }
+        require(size > 0, "collateralToken address is not a contract");
+        require(collateralToken != address(0), "Invalid collateralToken address");
+        assembly {
+            size := extcodesize(collateralToken)
+        }
+        require(size > 0, "collateralToken address is not a contract");
 
         Loan memory newLoan = Loan({
             borrowToken: borrowToken,
@@ -72,7 +89,7 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         });
 
         loans.push(newLoan);
-        uint256 loanIndex = loans.length - 1;
+        uint256 loanIndex = _loanCount++;
         borrowerLoans[msg.sender].push(loanIndex);
         
         IDeFiPlexGovernanceContract(_governanceContract).proposeLoanRequest(loanIndex);
@@ -89,11 +106,11 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         require(!loan.collateralized, "Collateral already collected");
         require(IERC20(loan.borrowToken).balanceOf(_stakingContract) >= loan.borrowAmount, "Insufficient borrow token amount in lending pool");
         require(IERC20(loan.collateralToken).balanceOf(loan.borrower) >= loan.collateralAmount, "Borrower does not have enough collateral tokens");
-        require(IDeFiPlexGovernanceContract(_governanceContract).checkProposalApprovalStatus(loanIndex), "Loan has not been approved");
+        require(IDeFiPlexGovernanceContract(_governanceContract).checkProposalApprovalStatus(loanIndex), "Loan proposal has not been approved by governance");
 
-        IERC20(loan.collateralToken).transferFrom(loan.borrower, address(this), loan.collateralAmount);
+        IERC20(loan.collateralToken).safeTransferFrom(loan.borrower, address(this), loan.collateralAmount);
         loan.collateralized = true;
-        IERC20(loan.borrowToken).transferFrom(_stakingContract, loan.borrower, loan.borrowAmount);
+        IDeFiPlexStakingContract(_stakingContract).transferTokensTo(loan.borrowToken, loan.borrower, loan.borrowAmount);
 
         emit CollateralCollected(loanIndex, loan.borrower, loan.collateralToken, loan.collateralAmount);
         emit LoanApproved(loanIndex, loan.borrower, loan.borrowAmount);
