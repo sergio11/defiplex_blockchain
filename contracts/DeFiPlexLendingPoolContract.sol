@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IDeFiPlexLendingPoolContract.sol";
+import "./IDeFiPlexGovernanceContract.sol";
 
 contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
 
@@ -11,9 +12,11 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
     Loan[] public loans;
 
     address private _stakingContract;
+    address private _governanceContract;
 
-    constructor(address initialOwner, address stakingContract) Ownable(initialOwner) {
+    constructor(address initialOwner, address stakingContract, address governanceContract) Ownable(initialOwner) {
         _stakingContract = stakingContract;
+        _governanceContract = governanceContract;
     }
 
     function requestLoan(
@@ -45,9 +48,12 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         });
 
         loans.push(newLoan);
-        borrowerLoans[msg.sender].push(loans.length - 1);
+        uint256 loanIndex = loans.length - 1;
+        borrowerLoans[msg.sender].push(loanIndex);
+        
+        IDeFiPlexGovernanceContract(_governanceContract).proposeLoanRequest(loanIndex);
 
-        emit LoanRequested(loans.length - 1, msg.sender, borrowToken, borrowAmount);
+        emit LoanRequested(loanIndex, msg.sender, borrowToken, borrowAmount);
     }
 
     function approveLoan(uint256 loanIndex) external override onlyOwner {
@@ -55,6 +61,7 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         require(!loan.collateralized, "Collateral already collected");
         require(IERC20(loan.borrowToken).balanceOf(_stakingContract) >= loan.borrowAmount, "Insufficient borrow token amount in lending pool");
         require(IERC20(loan.collateralToken).balanceOf(loan.borrower) >= loan.collateralAmount, "Borrower does not have enough collateral tokens");
+        require(IDeFiPlexGovernanceContract(_governanceContract).checkProposalApprovalStatus(loanIndex), "Loan has not be approved");
 
         IERC20(loan.collateralToken).transferFrom(loan.borrower, address(this), loan.collateralAmount);
         loan.collateralized = true;

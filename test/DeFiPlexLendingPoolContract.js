@@ -24,8 +24,14 @@ describe("DeFiPlexLendingPoolContract", function () {
     // Deploy staking contract
     const StakingContract = await ethers.getContractFactory("DeFiPlexStakingContract");
     stakingContract = await StakingContract.deploy(owner.address, rewardToken);
+
+    DeFiPlexGovernanceContract = await ethers.getContractFactory("DeFiPlexGovernanceContract");
+    DeFiPlexGovernanceToken = await ethers.getContractFactory("DeFiPlexGovernanceTokenContract");
+    // Deploy governance token and governance contract
+    governanceToken = await DeFiPlexGovernanceToken.deploy(owner.address);
+    governanceContract = await DeFiPlexGovernanceContract.deploy(owner.address, governanceToken, 10);
     // Deploy lending pool
-    lendingPool = await LendingPool.deploy(owner.address, stakingContract);
+    lendingPool = await LendingPool.deploy(owner.address, stakingContract, governanceContract);
 
     // Mint tokens for testing
     await flexToken2.connect(owner).mint(addr1.address, 500);
