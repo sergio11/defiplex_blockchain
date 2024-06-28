@@ -31,6 +31,11 @@ DeFiPlex is a comprehensive decentralized finance **(DeFi) platform** built on t
 
 - 📜 **Governance Contract (DefiFlexGovernanceContract)**: Facilitates governance processes by managing proposals and ensuring transparent voting mechanisms. It requires a minimum threshold of votes over a specified voting period for loan approvals, ensuring community consensus.
 
+## UML Design Diagram
+Complete UML diagram of decentralized application design.
+
+<img width="auto" src="./doc/diagram.svg" />
+
 ### Governance Mechanism for Loan Approval
 
 The DeFiPlex governance system plays a crucial role in loan approval processes. Here are its key components:
@@ -84,3 +89,17 @@ OpenZeppelin is a library of reusable and secure smart contract components widel
 Hardhat is a popular development environment tailored for Ethereum smart contract development. It offers built-in support for tasks such as compiling, testing, debugging, and deploying smart contracts, streamlining the development lifecycle and ensuring the reliability of deployed contracts.
 
 The technology stack behind DeFiPlex underscores its commitment to delivering a secure, scalable, and efficient decentralized finance platform. By leveraging Polygon's blockchain, Solidity smart contracts, OpenZeppelin's library, and the Hardhat development environment, DeFiPlex ensures robustness, security, and interoperability while offering a seamless user experience for staking, lending, borrowing, and governance activities.
+
+## 🛠️ Installation
+First, clone the repository:
+
+```bash
+git clone https://github.com/sergio11/defiplex_blockchain.git
+cd defiplex_blockchain
+```
+
+Install the necessary dependencies:
+
+```bash
+npm install
+```
