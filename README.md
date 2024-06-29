@@ -91,6 +91,149 @@ Hardhat is a popular development environment tailored for Ethereum smart contrac
 
 The technology stack behind DeFiPlex underscores its commitment to delivering a secure, scalable, and efficient decentralized finance platform. By leveraging Polygon's blockchain, Solidity smart contracts, OpenZeppelin's library, and the Hardhat development environment, DeFiPlex ensures robustness, security, and interoperability while offering a seamless user experience for staking, lending, borrowing, and governance activities.
 
+## 💼 Smart Contracts
+
+### DeFiPlex Staking Contract 🌱
+
+The DeFiPlex Staking Contract allows users to stake multiple ERC20 tokens and earn rewards over time.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IDeFiPlexStakingContract.sol";
+
+/**
+ * @title DeFiPlex Staking Contract
+ * @dev A contract that allows users to stake multiple ERC20 tokens and earn rewards over time.
+ */
+contract DeFiPlexStakingContract is Ownable, IDeFiPlexStakingContract {
+    using SafeERC20 for IERC20;
+// Contract implementation
+}
+```
+
+#### Key Features 🚀
+
+- **Stake Tokens:** Users can stake ERC20 tokens into the contract to earn rewards based on predefined rates.
+- **Withdraw Tokens:** Users can withdraw their staked tokens at any time, which updates their earned rewards.
+- **Claim Rewards:** Users can claim accumulated rewards periodically for each staked token.
+- **Manage Reward Rates:** Admins can set and update reward rates for each staking token.
+- **Authorization Mechanism:** Provides functionality to authorize specific addresses for token transfers.
+
+#### Contract Events 📜
+
+- `StakingTokenAdded(_stakingTokenAddress, _rewardRate)`: Fired when a new staking token is successfully added.
+- `Staked(user, amount)`: Indicates when a user stakes tokens into the contract.
+- `Withdrawn(user, amount)`: Indicates when a user withdraws tokens from the contract.
+- `RewardClaimed(user, amount)`: Fired when a user claims their accumulated rewards.
+
+#### Governance and Security 🔒
+
+The contract includes mechanisms for secure staking and rewards distribution, ensuring transparency and integrity through blockchain technology.
+
+### DeFiPlexLendingPoolContract 🏦
+
+This contract manages lending and borrowing functionalities within the DeFiPlex platform. It allows users to request loans, approve loans, and repay loans. Additionally, it handles collateral management and penalties for late repayments.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IDeFiPlexLendingPoolContract.sol";
+import "./IDeFiPlexGovernanceContract.sol";
+import "./IDeFiPlexStakingContract.sol";
+
+/**
+ * @title DeFiPlexLendingPoolContract
+ * @dev This contract handles the lending and borrowing functionalities within the DeFiPlex platform.
+ * It allows users to request loans, approve loans, and repay loans. Additionally, it manages collateral and penalties for late repayment.
+ */
+contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
+     using SafeERC20 for IERC20;
+// Contract implementation
+}
+```
+#### Key Functionalities 🛠️:
+
+- **Request Loan (`requestLoan`)** 📝:
+  - Allows users to request a new loan by specifying the borrow token, amount, collateral token, collateral amount, interest rate, and duration.
+  - Validates input parameters to ensure they meet specified requirements.
+
+- **Approve Loan (`approveLoan`)** ✅:
+  - Enables the contract owner to approve a loan after verifying collateral availability and governance approval.
+  - Transfers collateral from the borrower to the contract, secures it, and transfers borrowed tokens to the borrower.
+  - Records approval and sets penalty start time based on loan duration.
+
+- **Repay Loan (`repayLoan`)** ⏰:
+  - Allows borrowers to repay their loans, including interest and any applicable late repayment penalties.
+  - Validates borrower identity, loan collateralization status, repayment timing, and calculates repayment amounts including penalties.
+
+- **Set Penalty Rate (`setPenaltyRate`)** ⚠️:
+  - Allows the contract owner to set the penalty rate for late loan repayments.
+
+- **Loan Information (`getLoan`, `getLoanCount`, `getBorrowerLoans`)** 📊:
+  - Provides functions to retrieve loan details, total loan count, and borrower-specific loan indices for transparency and auditing purposes.
+
+#### Contracts Used 📜:
+- **Ownable**: Provides ownership control functionalities.
+- **SafeERC20**: Safely handles ERC20 token transfers to prevent common vulnerabilities.
+- **IDeFiPlexLendingPoolContract**: Interface for external interactions related to lending pools.
+- **IDeFiPlexGovernanceContract**: Interface for governance-related operations.
+- **IDeFiPlexStakingContract**: Interface for staking-related operations.
+
+### DeFiPlexGovernanceContract 🗳️
+
+This contract manages governance proposals for the DeFiPlex platform. It facilitates the creation, voting, and execution of proposals related to loans within the ecosystem.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./DeFiPlexGovernanceTokenContract.sol";
+import "./IDeFiPlexGovernanceContract.sol";
+
+/**
+ * @title DeFiPlexGovernanceContract
+ * @dev This contract manages governance proposals for DeFiPlex platform.
+ */
+contract DeFiPlexGovernanceContract is Ownable, IDeFiPlexGovernanceContract {
+// Contract implementation
+}
+```
+
+#### Key Functionalities 🛠️:
+
+- **Propose Loan Request (`proposeLoanRequest`)** 📝:
+  - Allows any address to propose a new loan request.
+  - Initiates a voting period during which token holders can vote on the proposal.
+
+- **Vote on Proposal (`vote`)** 🗳️:
+  - Enables token holders to vote either in favor of or against a loan proposal.
+  - Votes are weighted by the token balance held by the voter.
+
+- **Check Proposal Approval Status (`checkProposalApprovalStatus`)** ✅:
+  - Determines whether a loan proposal has met the criteria for approval.
+  - Conditions include surpassing the minimum required votes and having no votes against the proposal.
+
+- **Adjust Voting Parameters (`setMinimumVotesRequired`, `setVotingPeriod`)** ⚙️:
+  - Allows the contract owner to set the minimum votes required for proposal approval and adjust the duration of the voting period.
+
+- **Get Proposal Details (`getProposalDetails`)** 📊:
+  - Provides access to detailed information about a specific loan proposal, including its initiator, voting period, and current voting status.
+
+#### Contracts Used 📜:
+- **Ownable**: Manages ownership and access control over contract functionalities.
+- **DeFiPlexGovernanceTokenContract**: Interface to interact with the governance token for voting rights.
+- **IDeFiPlexGovernanceContract**: Interface defining the standard functions for governance contracts.
+  
 ## 🛠️ Installation
 First, clone the repository:
 
