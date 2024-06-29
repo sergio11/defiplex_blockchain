@@ -46,7 +46,7 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
      * @param collateralToken Address of the collateral token.
      * @param collateralAmount Amount of collateral tokens.
      * @param interestRate Interest rate for the loan.
-     * @param duration Duration of the loan in seconds.
+     * @param duration Duration of the loan in days.
      */
     function requestLoan(
         address borrowToken,
@@ -80,12 +80,12 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
             collateralAmount: collateralAmount,
             interestRate: interestRate,
             duration: duration,
-            startTime: block.timestamp,
             borrower: msg.sender,
             collateralized: false,
             repaid: false,
             penaltyRate: 1,
-            penaltyStartTime: 0
+            penaltyStartTime: 0,
+            approvalTime: 0
         });
 
         loans.push(newLoan);
@@ -109,8 +109,11 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         require(IDeFiPlexGovernanceContract(_governanceContract).checkProposalApprovalStatus(loanIndex), "Loan proposal has not been approved by governance");
 
         IERC20(loan.collateralToken).safeTransferFrom(loan.borrower, address(this), loan.collateralAmount);
+        require(IERC20(loan.collateralToken).approve(address(this), loan.collateralAmount), "Approval failed");
+        require(IERC20(loan.collateralToken).allowance(address(this), address(this)) >= loan.collateralAmount, "Insufficient collateral token allowance");
         loan.collateralized = true;
         IDeFiPlexStakingContract(_stakingContract).transferTokensTo(loan.borrowToken, loan.borrower, loan.borrowAmount);
+        loan.approvalTime = block.timestamp;
 
         emit CollateralCollected(loanIndex, loan.borrower, loan.collateralToken, loan.collateralAmount);
         emit LoanApproved(loanIndex, loan.borrower, loan.borrowAmount);
@@ -122,8 +125,9 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
      */
     function repayLoan(uint256 loanIndex) external override {
         Loan storage loan = loans[loanIndex];
+        require(loan.collateralized, "Collateral is not collected, the loan is not valid");
         require(!loan.repaid, "Loan already repaid");
-        require(block.timestamp >= loan.startTime + loan.duration, "Loan duration not expired");
+        require(block.timestamp >= loan.approvalTime + loan.duration * 1 days, "Loan duration not expired");
 
         uint256 interestAmount = loan.borrowAmount * loan.interestRate / 100;
         uint256 repaymentAmount = loan.borrowAmount + interestAmount;
@@ -141,12 +145,12 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         }
 
         require(IERC20(loan.borrowToken).balanceOf(loan.borrower) >= repaymentAmount, "Insufficient borrower funds");
-        IERC20(loan.borrowToken).transferFrom(loan.borrower, _stakingContract, repaymentAmount);
+        
+        IERC20(loan.borrowToken).safeTransferFrom(loan.borrower, _stakingContract, repaymentAmount);
 
         // Return collateral to borrower
-        if (loan.collateralized) {
-            IERC20(loan.collateralToken).transferFrom(address(this), loan.borrower, loan.collateralAmount);
-        }
+        require(IERC20(loan.collateralToken).balanceOf(address(this)) >= loan.collateralAmount, "Insufficient collateral token funds");
+        IERC20(loan.collateralToken).safeTransferFrom(address(this), loan.borrower, loan.collateralAmount);
 
         loan.repaid = true;
 

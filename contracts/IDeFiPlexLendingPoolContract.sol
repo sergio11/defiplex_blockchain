@@ -105,7 +105,7 @@ interface IDeFiPlexLendingPoolContract {
         uint256 collateralAmount;    // Amount of collateral in tokens
         uint256 interestRate;        // Interest rate in percentage (e.g., 10 for 10%)
         uint256 duration;            // Duration of the loan in blocks
-        uint256 startTime;           // Start time of the loan
+        uint256 approvalTime;        // Approval time of the loan
         address borrower;            // Address of the borrower
         bool collateralized;         // Flag to track if collateral has been collected
         bool repaid;                 // Flag to track if the loan has been repaid

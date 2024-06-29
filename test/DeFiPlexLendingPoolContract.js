@@ -36,7 +36,7 @@ describe("DeFiPlexLendingPoolContract", function () {
 
     // Mint tokens for testing
     await flexToken1.connect(owner).mint(owner.address, 1500);
-    await flexToken2.connect(owner).mint(addr1.address, 500);
+    await flexToken2.connect(owner).mint(addr2.address, 500);
     await rewardToken.mint(owner.address, 1000);
     await stakingContract.addStakingToken(flexToken1, 1);
     await stakingContract.authorizeTransfer(flexToken1, lendingPool);
@@ -204,6 +204,70 @@ describe("DeFiPlexLendingPoolContract", function () {
       await expect(lendingPool.approveLoan(0)).to.be.rejectedWith("Loan proposal has not been approved by governance");
       expect(await flexToken1.balanceOf(addr1)).to.equal(0);
     });
+
+    it("Should be approved successfully", async function () {
+      await flexToken1.connect(owner).transfer(stakingContract, 500); // Transfer tokens to the staking contract
+      await flexToken2.connect(owner).transfer(addr1.address, 50); // Transfer collateral tokens to the borrower
+      await flexToken2.connect(addr1).approve(lendingPool, 50); // Approve the lending pool to spend borrower's collateral tokens
+  
+      await governanceContract.connect(addr2).vote(0, true); // Vote in favor of proposal
+      // Move time forward to voting period
+      await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+      await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+      await lendingPool.approveLoan(0);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(100);
+      expect(await flexToken1.balanceOf(stakingContract)).to.equal(400);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(0);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(50);
+    });
+  });
+
+
+  describe("Loan Repayment", function () {
+
+    beforeEach(async function () {
+      await lendingPool.connect(addr1).requestLoan(flexToken1, 100, flexToken2, 50, 10, 60);
+      await flexToken1.connect(owner).transfer(stakingContract, 500); // Transfer tokens to the staking contract
+      await flexToken2.connect(owner).transfer(addr1.address, 50); // Transfer collateral tokens to the borrower
+      await flexToken2.connect(addr1).approve(lendingPool, 50);
+      await governanceContract.connect(addr2).vote(0, true); // Vote in favor of proposal
+      // Move time forward to voting period
+      await ethers.provider.send("evm_increaseTime", [86401]); // Move time forward by 1 day and 1 second
+      await ethers.provider.send("evm_mine"); // Mine a new block to advance time
+      await lendingPool.approveLoan(0);
+    });
+
+    it("Should be rejected because the loan duration not expired yet", async function () {
+      await expect(lendingPool.connect(addr1).repayLoan(0)).to.be.rejectedWith("Loan duration not expired");
+    });
+
+
+    it("Should be repay successfuly", async function () {
+      await ethers.provider.send("evm_increaseTime", [86401 * 60]); // Move time forward by 60 day and 1 second
+      await ethers.provider.send("evm_mine"); 
+      await flexToken1.connect(owner).transfer(addr1, 100);
+      await flexToken1.connect(addr1).approve(lendingPool, 110);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(200);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(50);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(0);
+      await lendingPool.connect(addr1).repayLoan(0);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(90);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(0);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(50);
+    });
+
+    it("Should be rejected because loan is already repaid", async function () {
+      await ethers.provider.send("evm_increaseTime", [86401 * 60]); // Move time forward by 60 day and 1 second
+      await ethers.provider.send("evm_mine"); 
+      await flexToken1.connect(owner).transfer(addr1, 100);
+      await flexToken1.connect(addr1).approve(lendingPool, 110);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(200);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(50);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(0);
+      await lendingPool.connect(addr1).repayLoan(0);
+      await expect(lendingPool.connect(addr1).repayLoan(0)).to.be.rejectedWith("Loan already repaid");
+    });
+
   });
 
 });
