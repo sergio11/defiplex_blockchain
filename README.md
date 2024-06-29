@@ -261,6 +261,28 @@ npx hardhat ignition deploy ignition/modules/DefiPlex.js --network amoy
 
 Deploying your DeFiPlex contracts with Hardhat Ignition ensures a smooth, efficient, and error-free process, paving the way for a robust and transparent DeFi system.
 
+```bash
+√ Confirm deploy to network amoy (80002)? ... yes
+Hardhat Ignition 🚀
+
+Resuming existing deployment from .\ignition\deployments\chain-80002
+
+Deploying [ DeFiPlex ]
+
+Batch #1
+  Executed DeFiPlex#DeFiPlexLendingPoolContract
+
+[ DeFiPlex ] successfully deployed 🚀
+
+Deployed Addresses
+
+DeFiPlex#DeFiPlexGovernanceTokenContract - 0x8A53E585c5c19b78b03d215a978BAa74f81EE08B
+DeFiPlex#PlexTokenERC20Contract - 0xe75457AeFa4D367DFc5495112a60178A8e2A0243
+DeFiPlex#DeFiPlexGovernanceContract - 0xbD3a29C9C39E13D4307a9E153468481f63dD606e
+DeFiPlex#DeFiPlexStakingContract - 0x7a820E12b5C357f63984dBf9a7b3d17bE1114857
+DeFiPlex#DeFiPlexLendingPoolContract - 0xB1D55F4Dfc46905f43A424656584351445956009
+```
+
 ## 🧪 Testing
 Testing is a critical part of the development process for ensuring that our smart contracts function correctly and securely. The DeFiPlex project includes comprehensive test suites for all the contracts. These tests cover a wide range of scenarios to ensure robustness and reliability.
 
