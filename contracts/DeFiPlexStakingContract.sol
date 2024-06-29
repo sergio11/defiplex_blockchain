@@ -275,7 +275,7 @@ contract DeFiPlexStakingContract is Ownable, IDeFiPlexStakingContract {
         // msg.sender calls safeTransfer to move the tokens
         IERC20(token).safeTransfer(target, amount);
     }
-
+    
     /**
      * @dev Internal function to update rewards for a user
      * @param stakingTokenAddress Address of the ERC20 token

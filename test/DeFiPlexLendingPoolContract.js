@@ -250,7 +250,10 @@ describe("DeFiPlexLendingPoolContract", function () {
       expect(await flexToken1.balanceOf(addr1)).to.equal(200);
       expect(await flexToken2.balanceOf(lendingPool)).to.equal(50);
       expect(await flexToken2.balanceOf(addr1)).to.equal(0);
-      await lendingPool.connect(addr1).repayLoan(0);
+      // Repay the loan and check if LoanRepaid event is emitted
+      await expect(lendingPool.connect(addr1).repayLoan(0))
+      .to.emit(lendingPool, "LoanRepaid")
+      .withArgs(0, addr1.address, 110);
       expect(await flexToken1.balanceOf(addr1)).to.equal(90);
       expect(await flexToken2.balanceOf(lendingPool)).to.equal(0);
       expect(await flexToken2.balanceOf(addr1)).to.equal(50);
@@ -268,6 +271,35 @@ describe("DeFiPlexLendingPoolContract", function () {
       await expect(lendingPool.connect(addr1).repayLoan(0)).to.be.rejectedWith("Loan already repaid");
     });
 
-  });
+    it("Should be rejected because Only the borrower can repay the loan", async function () {
+      await ethers.provider.send("evm_increaseTime", [86401 * 60]); // Move time forward by 60 day and 1 second
+      await ethers.provider.send("evm_mine"); 
+      await flexToken1.connect(owner).transfer(addr1, 100);
+      await flexToken1.connect(addr1).approve(lendingPool, 110);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(200);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(50);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(0);
+      await expect(lendingPool.connect(addr2).repayLoan(0)).to.be.rejectedWith("Only the borrower can repay the loan");
+    });
 
+    it("Should be repay successfuly penalty", async function () {
+      await ethers.provider.send("evm_increaseTime", [86400 * 75]); // Move time forward by 70 day and 1 second
+      await ethers.provider.send("evm_mine"); 
+      await flexToken1.connect(owner).transfer(addr1, 100);
+      await flexToken1.connect(addr1).approve(lendingPool, 112);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(200);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(50);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(0);
+      // Repay the loan and check if LoanRepaid event is emitted
+      await expect(lendingPool.connect(addr1).repayLoan(0))
+      .to.emit(lendingPool, "LoanRepaid")
+      .withArgs(0, addr1.address, 112)
+      .and.to.emit(lendingPool, "PenaltyApplied")
+      .withArgs(0, addr1.address, 2);
+      expect(await flexToken1.balanceOf(addr1)).to.equal(88);
+      expect(await flexToken2.balanceOf(lendingPool)).to.equal(0);
+      expect(await flexToken2.balanceOf(addr1)).to.equal(50);
+    });
+
+  });
 });

@@ -114,6 +114,7 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         loan.collateralized = true;
         IDeFiPlexStakingContract(_stakingContract).transferTokensTo(loan.borrowToken, loan.borrower, loan.borrowAmount);
         loan.approvalTime = block.timestamp;
+        loan.penaltyStartTime = loan.approvalTime + loan.duration * 1 days;
 
         emit CollateralCollected(loanIndex, loan.borrower, loan.collateralToken, loan.collateralAmount);
         emit LoanApproved(loanIndex, loan.borrower, loan.borrowAmount);
@@ -125,6 +126,7 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
      */
     function repayLoan(uint256 loanIndex) external override {
         Loan storage loan = loans[loanIndex];
+        require(msg.sender == loan.borrower, "Only the borrower can repay the loan");
         require(loan.collateralized, "Collateral is not collected, the loan is not valid");
         require(!loan.repaid, "Loan already repaid");
         require(block.timestamp >= loan.approvalTime + loan.duration * 1 days, "Loan duration not expired");
@@ -133,9 +135,7 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         uint256 repaymentAmount = loan.borrowAmount + interestAmount;
 
         // Apply penalties for late repayment
-        if (loan.penaltyStartTime == 0) {
-            loan.penaltyStartTime = block.timestamp;
-        } else {
+        if (block.timestamp > loan.approvalTime + loan.duration * 1 days) {
             uint256 weeksLate = (block.timestamp - loan.penaltyStartTime) / (7 days);
             uint256 penaltyAmount = weeksLate * loan.penaltyRate * loan.borrowAmount / 100;
             if (penaltyAmount > 0) {
@@ -145,7 +145,6 @@ contract DeFiPlexLendingPoolContract is Ownable, IDeFiPlexLendingPoolContract {
         }
 
         require(IERC20(loan.borrowToken).balanceOf(loan.borrower) >= repaymentAmount, "Insufficient borrower funds");
-        
         IERC20(loan.borrowToken).safeTransferFrom(loan.borrower, _stakingContract, repaymentAmount);
 
         // Return collateral to borrower
