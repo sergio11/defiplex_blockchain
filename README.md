@@ -1,6 +1,6 @@
 # 🌐 DeFiPlex - Decentralized Finance Platform on Polygon
 
-🌐 DeFiPlex is a comprehensive decentralized finance (DeFi) platform built on the Polygon blockchain, a Layer 2 scaling solution for Ethereum. It aims to facilitate a wide array of decentralized financial activities, making it accessible and efficient for users across the globe. Whether users are looking to stake their assets to earn rewards, participate in decentralized lending and borrowing markets, or engage in community-driven governance decisions, DeFiPlex provides a seamless and secure environment.
+🌐 DeFiPlex is a comprehensive decentralized finance (DeFi) platform built on the Polygon blockchain, a Layer 2 scaling solution for Polygon. It aims to facilitate a wide array of decentralized financial activities, making it accessible and efficient for users across the globe. Whether users are looking to stake their assets to earn rewards, participate in decentralized lending and borrowing markets, or engage in community-driven governance decisions, DeFiPlex provides a seamless and secure environment.
 
 🔗 Powered by smart contracts, DeFiPlex ensures unparalleled transparency by executing transactions in a trustless manner, thereby eliminating the need for intermediaries. Security is paramount, with robust protocols and audits in place to safeguard user funds and maintain the integrity of the platform.
 
@@ -9,8 +9,8 @@
   <img src="https://img.shields.io/badge/Alchemy-039BE5?style=for-the-badge&logo=alchemy&logoColor=white" />
   <img src="https://img.shields.io/badge/Remix IDE-3e5f8a?style=for-the-badge&logo=remix&logoColor=white" />
   <img src="https://img.shields.io/badge/Hardhat-E6522C?style=for-the-badge&logo=hardhat&logoColor=white" />
-  <img src="https://img.shields.io/badge/Ethereum-3C3C3D?style=for-the-badge&logo=Ethereum&logoColor=white" />
-  <img src="https://img.shields.io/badge/Smart%20Contracts-8B0000?style=for-the-badge&logo=Ethereum&logoColor=white" />
+  <img src="https://img.shields.io/badge/Polygon-3C3C3D?style=for-the-badge&logo=Polygon&logoColor=white" />
+  <img src="https://img.shields.io/badge/Smart%20Contracts-8B0000?style=for-the-badge&logo=Polygon&logoColor=white" />
 </p>
 
 ### Key Features
@@ -63,9 +63,9 @@ DeFiPlex is committed to providing a secure and versatile platform for decentral
 
 DeFiPlex leverages a robust technology stack to ensure scalability, security, and efficiency across its decentralized finance platform:
 
-- 🛠️ **Polygon Blockchain**: DeFiPlex is built on the Polygon blockchain, benefiting from its high throughput, low transaction fees, and interoperability with Ethereum.
+- 🛠️ **Polygon Blockchain**: DeFiPlex is built on the Polygon blockchain, benefiting from its high throughput, low transaction fees, and interoperability with Polygon.
 
-- 💻 **Solidity**: Smart contracts in DeFiPlex are written in Solidity, the predominant programming language for Ethereum-compatible blockchains, ensuring compatibility and reliability.
+- 💻 **Solidity**: Smart contracts in DeFiPlex are written in Solidity, the predominant programming language for Polygon-compatible blockchains, ensuring compatibility and reliability.
 
 - 📦 **OpenZeppelin**: OpenZeppelin's library is extensively used for secure and standardized smart contract components. It provides tested and audited implementations of ERC standards and contract functionalities, enhancing security and reliability.
 
@@ -75,11 +75,11 @@ DeFiPlex leverages a robust technology stack to ensure scalability, security, an
 
 #### Polygon Blockchain 🔷
 
-Polygon provides a scalable and Ethereum-compatible platform that enhances transaction speeds and reduces costs compared to the Ethereum mainnet. DeFiPlex leverages Polygon’s Layer 2 solutions to ensure fast transaction finality and a seamless user experience.
+Polygon provides a scalable and Polygon-compatible platform that enhances transaction speeds and reduces costs compared to the Polygon mainnet. DeFiPlex leverages Polygon’s Layer 2 solutions to ensure fast transaction finality and a seamless user experience.
 
 #### Solidity 🖋️
 
-Solidity is the programming language of choice for developing smart contracts on Ethereum and compatible blockchains. It enables developers to write secure and efficient contracts, ensuring compatibility with the broader Ethereum ecosystem and facilitating seamless integration with decentralized applications (dApps).
+Solidity is the programming language of choice for developing smart contracts on Polygon and compatible blockchains. It enables developers to write secure and efficient contracts, ensuring compatibility with the broader Polygon ecosystem and facilitating seamless integration with decentralized applications (dApps).
 
 #### OpenZeppelin 🔒
 
@@ -87,7 +87,7 @@ OpenZeppelin is a library of reusable and secure smart contract components widel
 
 #### Hardhat 🎩
 
-Hardhat is a popular development environment tailored for Ethereum smart contract development. It offers built-in support for tasks such as compiling, testing, debugging, and deploying smart contracts, streamlining the development lifecycle and ensuring the reliability of deployed contracts.
+Hardhat is a popular development environment tailored for Polygon smart contract development. It offers built-in support for tasks such as compiling, testing, debugging, and deploying smart contracts, streamlining the development lifecycle and ensuring the reliability of deployed contracts.
 
 The technology stack behind DeFiPlex underscores its commitment to delivering a secure, scalable, and efficient decentralized finance platform. By leveraging Polygon's blockchain, Solidity smart contracts, OpenZeppelin's library, and the Hardhat development environment, DeFiPlex ensures robustness, security, and interoperability while offering a seamless user experience for staking, lending, borrowing, and governance activities.
 
