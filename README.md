@@ -378,6 +378,6 @@ You can also use ganache to carry out the tests, for this it is only necessary t
 npx hardhat --network ganache test
 ```
 
-<img width="auto" src="./doc/ganache.PNG" />
+<img width="auto" src="./doc/ganache_tests.PNG" />
 
 Tests provide comprehensive coverage of all DeFiPlex smart contract functionalities, ensuring thorough validation of every aspect of the platform's lending, borrowing, and governance mechanisms. These tests simulate various scenarios, including edge cases and typical user interactions, to verify the robustness, security, and compliance of the smart contracts with the intended DeFiPlex platform specifications. By rigorously testing each function, from loan requests to governance proposals, developers ensure early identification and resolution of potential bugs, vulnerabilities, and unintended behaviors. This approach enhances the overall reliability and trustworthiness of DeFiPlex, fostering confidence among users and stakeholders in the platform's operational integrity.
