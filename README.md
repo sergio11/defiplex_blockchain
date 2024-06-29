@@ -105,7 +105,6 @@ Install the necessary dependencies:
 npm install
 ```
 
-
 ## 🚀 Usage
 
 ### 📜 Deploying Contracts
@@ -116,3 +115,124 @@ Use the following command to deploy the contracts to the specified network (in t
 ```shell
 npx hardhat ignition deploy ignition/modules/DefiPlex.js --network amoy   
 ```
+
+Deploying your DeFiPlex contracts with Hardhat Ignition ensures a smooth, efficient, and error-free process, paving the way for a robust and transparent DeFi system.
+
+## 🧪 Testing
+Testing is a critical part of the development process for ensuring that our smart contracts function correctly and securely. The DeFiPlex project includes comprehensive test suites for all the contracts. These tests cover a wide range of scenarios to ensure robustness and reliability.
+
+### Running the Tests
+To run the tests, use the following command:
+
+```shell
+npx hardhat test
+```
+
+This command will execute all the test scripts located in the test directory, and you should see output similar to the following:
+
+```shell
+DeFiPlexGovernanceContract
+    ✔ Should deploy the contract correctly
+    ✔ Should allow setting minimum votes required
+    ✔ Should allow setting voting period
+    ✔ Should propose a loan request
+    ✔ Should vote on a proposal
+    ✔ Should not approve a proposal if criteria are not met
+    ✔ Should approve a proposal if criteria are met
+    ✔ Should not approve a proposal if there are votes against it
+    ✔ Should revert on trying to vote on non-existent proposal (38ms)
+    ✔ Should revert on trying to propose with same ID
+    ✔ Should revert when user tries to vote again
+    ✔ Should revert when user tries to vote outside voting period
+    ✔ Should retrieve correct details of a loan proposal
+
+  DeFiPlexLendingPoolContract
+    Loan Requests
+      ✔ Should allow users to request a loan
+      ✔ Should revert if loan amount is zero
+      ✔ Should revert if interest rate is zero
+      ✔ Should revert if collateral amount is zero
+      ✔ Should revert if duration is zero
+    Loan Queries
+      ✔ Should return borrower loans correctly
+      ✔ Should revert if no loans found for borrower
+      ✔ Should return loan details correctly
+      ✔ Should revert if loan index is out of bounds
+    Loan Approval
+      ✔ Should be rejected because insufficient borrow token amount in lending pool
+      ✔ Should be rejected because borrower does not have enough collateral tokens
+      ✔ Should be rejected because collateral already collected
+      ✔ Should be rejected because the loan proposal has not been approved by governance
+      ✔ Should be approved successfully
+    Loan Repayment
+      ✔ Should be rejected because the loan duration not expired yet
+      ✔ Should be repay successfuly
+      ✔ Should be rejected because loan is already repaid
+      ✔ Should be rejected because Only the borrower can repay the loan
+      ✔ Should be repay successfuly penalty (45ms)
+
+  DeFiPlexStakingContract
+    ✔ Should set the right owner
+    Adding Staking Tokens
+      ✔ Should allow the owner to add staking tokens
+      ✔ Should not allow non-owners to add staking tokens
+      ✔ Should not allow adding the same staking token more than once
+      ✔ Should revert when adding a staking token with a reward rate of zero
+      ✔ Should correctly store staking token info after adding
+      ✔ Should emit StakingTokenAdded event when a new staking token is added
+      ✔ Should revert if trying to add a staking token with a non-contract address
+      ✔ Should not allow adding staking tokens with extremely high reward rates
+    Staking Tokens
+      ✔ Should allow users to stake tokens
+      ✔ Should not allow staking zero tokens
+      ✔ Should allow multiple users to stake tokens
+      ✔ Should not allow staking more tokens than available
+      ✔ Should allow stake and withdraw tokens
+      ✔ Should revert if user tries to withdraw more than staked
+      ✔ Should revert if contract has insufficient funds for withdrawal
+    Withdrawing Tokens
+      ✔ Should allow users to withdraw all staked tokens
+      ✔ Should not allow withdrawing more tokens than staked
+      ✔ Should allow withdrawing tokens and update rewards
+      ✔ Should allow withdrawing tokens and update rewards 2
+    Claiming Rewards
+      ✔ Should allow users to claim rewards
+      ✔ Should update user reward after claiming
+      ✔ Should not allow claiming zero rewards
+      ✔ Should not affect staked balance after claiming rewards
+      ✔ Should revert if user tries to claim rewards with no staked tokens
+      ✔ Should revert if user tries to claim rewards with no rewards available
+    Setting Reward Rate
+      ✔ Should allow the owner to set the reward rate
+      ✔ Should not allow non-owners to set the reward rate
+    Getting Information
+      ✔ Should return the correct total supply
+      ✔ Should return the correct balance of user
+      ✔ Should return the correct earned rewards
+      ✔ Should return the correct total rewards accumulated
+
+  PlexTokenERC20Contract
+    Deployment
+      ✔ Should set the right owner
+      ✔ Should assign the initial supply to the owner
+    Minting
+      ✔ Should allow the owner to mint tokens
+      ✔ Should not allow non-owners to mint tokens
+    Burning
+      ✔ Should allow users to burn their tokens
+    MultiTransfer
+      ✔ Should allow the owner to transfer tokens to multiple addresses
+      ✔ Should not allow non-owners to execute multiTransfer
+      ✔ Should revert if arrays length mismatch
+
+
+  72 passing (9s)
+```
+
+You can also use ganache to carry out the tests, for this it is only necessary to use the network option
+
+```shell
+npx hardhat --network ganache test
+```
+
+Tests provide comprehensive coverage of all smart contract functionalities.
