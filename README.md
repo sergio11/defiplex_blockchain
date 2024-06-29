@@ -48,7 +48,7 @@ The DeFiPlex governance system plays a crucial role in loan approval processes. 
 * **Threshold Requirements: 📊** Loan proposals must meet a minimum threshold of votes during a specified voting period to be approved. This ensures robust community backing and consensus before final approval.
 
 * **Execution: 🚀** Once a loan proposal meets the voting requirements, it is automatically executed via smart contracts. This includes disbursing loan funds and implementing agreed-upon terms.
-* 
+
 ### Security Considerations
 
 - 🔍 **Auditing**: All smart contracts undergo rigorous audits conducted by reputable security firms to ensure robustness and protection against vulnerabilities.
@@ -71,21 +71,21 @@ DeFiPlex leverages a robust technology stack to ensure scalability, security, an
 
 - ⚙️ **Hardhat**: Hardhat serves as the development environment for DeFiPlex, facilitating tasks such as compiling, testing, and deploying smart contracts. It supports a wide range of plugins and tools essential for robust contract development and deployment.
 
-### Key Technologies Explained
+### Key Technologies Explained 🛠️📚
 
-#### Polygon Blockchain
+#### Polygon Blockchain 🔷
 
 Polygon provides a scalable and Ethereum-compatible platform that enhances transaction speeds and reduces costs compared to the Ethereum mainnet. DeFiPlex leverages Polygon’s Layer 2 solutions to ensure fast transaction finality and a seamless user experience.
 
-#### Solidity
+#### Solidity 🖋️
 
 Solidity is the programming language of choice for developing smart contracts on Ethereum and compatible blockchains. It enables developers to write secure and efficient contracts, ensuring compatibility with the broader Ethereum ecosystem and facilitating seamless integration with decentralized applications (dApps).
 
-#### OpenZeppelin
+#### OpenZeppelin 🔒
 
 OpenZeppelin is a library of reusable and secure smart contract components widely adopted within the blockchain community. DeFiPlex utilizes OpenZeppelin's tested implementations of ERC standards and contract functionalities to enhance security and mitigate potential vulnerabilities.
 
-#### Hardhat
+#### Hardhat 🎩
 
 Hardhat is a popular development environment tailored for Ethereum smart contract development. It offers built-in support for tasks such as compiling, testing, debugging, and deploying smart contracts, streamlining the development lifecycle and ensuring the reliability of deployed contracts.
 
@@ -103,4 +103,16 @@ Install the necessary dependencies:
 
 ```bash
 npm install
+```
+
+
+## 🚀 Usage
+
+### 📜 Deploying Contracts
+Deploying the DeFiPlex smart contracts is a straightforward process using **Hardhat Ignition***. This tool simplifies the deployment process, allowing you to deploy your contracts with ease and confidence. Below is a step-by-step guide to deploying the DeFiPlex contracts to your specified network.
+
+Use the following command to deploy the contracts to the specified network (in this case, Polygon amoy):
+
+```shell
+npx hardhat ignition deploy ignition/modules/DefiPlex.js --network amoy   
 ```
