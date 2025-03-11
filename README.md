@@ -13,6 +13,10 @@
   <img src="https://img.shields.io/badge/Smart%20Contracts-8B0000?style=for-the-badge&logo=Polygon&logoColor=white" />
 </p>
 
+## ⚠️ Disclaimer  
+
+**DeFiPlex** is an **experimental and educational project** designed to explore **decentralized finance (DeFi) concepts**, **smart contract development**, and **blockchain technology** on the **Polygon network**. The platform demonstrates **staking, lending, borrowing, and governance mechanisms** in a simulated environment for research and learning purposes.  
+
 ## More Details 📝
 
 For comprehensive information about this project, check out this [Medium article](https://medium.com/@sanchezsanchezsergio418/defiplex-transforming-finance-with-security-and-efficiency-on-blockchain-c1c0049a51d8).
