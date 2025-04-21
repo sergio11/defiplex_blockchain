@@ -417,9 +417,6 @@ Tests provide comprehensive coverage of all DeFiPlex smart contract functionalit
 <img width="auto" src="https://profile-counter.glitch.me/defiplex_blockchain/count.svg" />
 
 ## Please Share & Star the repository to keep me motivated.
-  <a href = "https://github.com/sergio11/defiplex_blockchain/stargazers">
-     <img src = "https://img.shields.io/github/stars/sergio11/defiplex_blockchain" />
-  </a>
-  <a href = "https://twitter.com/SergioReact418">
-     <img src = "https://img.shields.io/twitter/url?label=follow&style=social&url=https%3A%2F%2Ftwitter.com%2FSergioReact418" />
-  </a>
+<a href = "https://github.com/sergio11/defiplex_blockchain/stargazers">
+    <img src = "https://img.shields.io/github/stars/sergio11/defiplex_blockchain" />
+</a>
